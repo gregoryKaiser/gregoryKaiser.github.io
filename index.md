@@ -5,6 +5,6 @@ This is going to be some kind of intro to describe both the class and my goals a
 
 In the meantime, look at my face.
 
-![Greg's Face](headshot_crop.jpg)
+![Greg's Face](headshot_crop.png)
 
 I'm very excited to get _rolling_.
