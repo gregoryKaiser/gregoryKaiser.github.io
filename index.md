@@ -1,6 +1,3 @@
-title: Gregory Kaiser's ECE 4960 Page
-description: ECE 4960: Fast Robots
-
 ## Welcome to Greg Kaiser's Page
 ### ECE 4960: Fast Robots
 
