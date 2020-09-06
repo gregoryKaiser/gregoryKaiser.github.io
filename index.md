@@ -1,12 +1,12 @@
-->
-## Welcome to Greg Kaiser's Page
-### ECE 4960: Fast Robots
-<-
+<div align="center">
+	## Welcome to Greg Kaiser's Page
+	### ECE 4960: Fast Robots
+</div>
 
 This is going to be some kind of intro to describe both the class and my goals as a student while taking it.
 
 In the meantime, look at my face.
 
-![Greg's Face,50%](images/headshot_crop.png)
+![Greg's Face, 20%](images/headshot_crop.png)
 
 I'm very excited to get _rolling_.
