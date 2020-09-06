@@ -7,7 +7,6 @@ This is going to be some kind of intro to describe both the class and my goals a
 
 In the meantime, look at my face.
 
-<center>
 ![Greg's Face, 20%](images/headshot_crop.png)
-</center>
+
 I'm very excited to get _rolling_.
