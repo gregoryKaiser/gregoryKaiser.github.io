@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Freelancer - Start Bootstrap Theme</title>
+        <title>Fast Robots - Greg Kaiser</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="assets/img/terminator.ico" />
         <!--source for cog icon: https://www.iconarchive.com/show/small-n-flat-icons-by-paomedia/cogs-icon.html-->
@@ -72,7 +72,7 @@
                             <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
                             </div>
-                            <img class="img-fluid" src="assets/img/portfolio/cabin.png" alt="" />
+                            <img class="img-fluid" src="assets/img/photos/artemis_overhead.jpg" alt="" />
                         </div>
                         <h5 class="text-center">Lab 1: The Artemis Board</h5>
                     </div>
@@ -306,7 +306,7 @@
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"><i class="fas fa-times"></i></span>
                     </button>
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-left">
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
@@ -319,9 +319,51 @@
                                         <div class="divider-custom-line"></div>
                                     </div>
                                     <!-- Portfolio Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/portfolio/cabin.png" alt="" />
+                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/artemis_overhead.jpg" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <p class="mb-5"><a href="https://cei-lab.github.io/ECE4960/Lab1.html">Lab 1</a></p>
+                                    <h5>Lab 1 Goals</h5>
+                                    <p class="mb-5">
+                                        <a href="https://cei-lab.github.io/ECE4960/Lab1.html">Lab 1</a> was focused on getting started with the Artemis board while testing a few of its features.
+                                    </p>
+                                    <h5>Lab 1 Report</h5>
+                                    <h6>Parts 1 & 2</h6>
+                                    <p class="mb-5">
+                                        These steps involved obtaining the latest version of the Arduino IDE [link?] and Sparkfun's support pack[link?]. While this did involve some download time, it was not a labor-intensive process.
+                                    </p>
+
+                                    <h6>Part 3</h6>
+                                    <p class="mb-5">
+                                        Once everything was installed correctly, I compiled and uploaded the "Example: Blink it Up" sketch to the Artemis. To confirm that it was correctly uploading, I also changed the delay time in the sketch and made sure that the blink rate changed accordingly.
+                                    </p>
+                                    <h6>Parts 4 & 5</h6>
+                                    <p class="mb-5">
+                                        The sketch "Example2_Serial" confirmed that the serial port was both sending and recieving information accurately. Running "Example4_analogRead" took a bit more time, since the Artemis needed to heat up over a minute or so. To speed up this process, I held the board near a hot spot on my laptop. The temperature reading rose to about 35 degrees C, at which point I removed the board from heat and watched the temperature drop again.
+                                    </p>
+                                    <h6>Part 6</h6>
+                                    <p class="mb-5">
+                                        A more interesting test involved the "Example1_MicrophoneOutput" sketch where loudest frequency of sound was printed to the serial port. I whistled a few tones to test it out, and then wrote a short block of code inside the example sketch to turn on the blue debug LED on output pin 19 when a tone is heard. Below line 123, I added the following:
+                                        <pre><code>if(ui32LoudestFrequency != 0){
+    digitalWrite(19,HIGH);
+}
+else{
+    digitalWrite(19,LOW);
+}
+                                        </code></pre>
+                                    </p>
+                                    <h6>Part 7</h6>
+                                    <p class="mb-5">
+                                        This additional code worked almost immediately, allowing me to run the sketch on the Artemis untethered by attaching a 3.7V LiPo battery.
+                                    </p>
+                                    <h5>Lab 1 Supercut Video:</h5>
+
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/yuck4rG8w7g" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    </div>
+
+                                    <p class="mb-5">
+                                        This is a supercut of each of these milestones in order.
+                                    </p>
+
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
@@ -340,7 +382,7 @@
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"><i class="fas fa-times"></i></span>
                     </button>
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-left">
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
@@ -355,7 +397,9 @@
                                     <!-- Portfolio Modal - Image-->
                                     <img class="img-fluid rounded mb-5" src="assets/img/portfolio/cake.png" alt="" />
                                     <!-- Portfolio Modal - Text-->
+                                    <h5>Lab 2 Goals</h5>
                                     <p class="mb-5"><a href="https://cei-lab.github.io/ECE4960/Lab2.html">Lab 2</a></p>
+                                    <h5>Lab 2 Report</h5>
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
@@ -374,7 +418,7 @@
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"><i class="fas fa-times"></i></span>
                     </button>
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-left">
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
@@ -408,7 +452,7 @@
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"><i class="fas fa-times"></i></span>
                     </button>
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-left">
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
@@ -442,7 +486,7 @@
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"><i class="fas fa-times"></i></span>
                     </button>
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-left">
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
@@ -476,7 +520,7 @@
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"><i class="fas fa-times"></i></span>
                     </button>
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-left">
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
@@ -510,7 +554,7 @@
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"><i class="fas fa-times"></i></span>
                     </button>
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-left">
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
@@ -544,7 +588,7 @@
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"><i class="fas fa-times"></i></span>
                     </button>
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-left">
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
@@ -578,7 +622,7 @@
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"><i class="fas fa-times"></i></span>
                     </button>
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-left">
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
@@ -612,7 +656,7 @@
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"><i class="fas fa-times"></i></span>
                     </button>
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-left">
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
@@ -646,7 +690,7 @@
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"><i class="fas fa-times"></i></span>
                     </button>
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-left">
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
