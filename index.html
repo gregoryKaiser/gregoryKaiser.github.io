@@ -414,7 +414,7 @@
                                     </p>
                                     <h6>Ping</h6>
                                     <p class="mb-5">
-                                        Running <code>await theRobot.ping()</code> pings the robot and keeps track of how long the round trip data transfer takes. When a ping is requested, the Artemis sends back a command with type <code>PONG</code> instead. The message being sent is a <code>cmd_t</code> struct, with the same data as was received. Printing the data over the Serial port, and checking the source code on line 67 of <code>ece4960robot.py</code>, reveals that the data being sent in a ping is a bytearray of the command number followed by 98 zeros (essentially, length=0 and the 97-byte-long data array is empty). This means the entire command sent back and forth is 99 bytes total. This is the maximum size for a <code>cmd_t</code> as curently structured.
+                                        Running <code>await theRobot.ping()</code> pings the robot and keeps track of how long the round trip data transfer takes. When a ping is requested, the Artemis sends back a command with type <code>PONG</code> instead. The message being sent is a <code>cmd_t</code> struct, with the same data as was received. Printing the data over the Serial port, and checking the source code on line 67 of <code>ece4960robot.py</code>, reveals that the data being sent in a ping is a bytearray of the command number followed by 98 zeros (essentially, length=0 and the 97-byte-long data array is empty). This means the entire command sent back and forth is 99 bytes total. This is the maximum size for a <code>cmd_t</code> as currently structured.
                                     </p>
                                     <p class="mb-5">
                                         I copied the output from the program (data transfer latencies) into a text file to parse in Python to measure the delay. <br>
@@ -427,7 +427,7 @@
                                         Dividing 99 bytes by .117s gives a bit rate of approximately 6770bps, which is lower than one of the lower-bit-rate wired serial options of 9600bps.
                                     </p>
                                     <p class="mb-5">
-                                        I did write a separate python and Arduino script to ping the Artemis over a wired serial connection to test this higher data rate, but was unable to test it side-by-side with a similar data structure in time.
+                                        I did write a separate python and Arduino script to ping the Artemis over a wired serial connection to test this higher data rate, but was unable to show it side-by-side with a similar data structure in time.
                                         <!-- I wrote a separate python script to send pings to the Artemis over the wired serial port. Using an example from Arduino's <a href="https://www.arduino.cc/en/Tutorial/SerialEvent" target=”_blank”> SerialEvent documentation </a> I was able to echo the data back and keep track of wired transfer latency. On the python side, the ping looked like:
                                         <pre>
                                             <code>
@@ -459,7 +459,7 @@
                                     </p>
                                     <h6>Float Request</h6>
                                     <p class="mb-5">
-                                        Sending <code>await theRobot.sendCommand(Commands.REQ_FLOAT)</code> instead of the ping command asks the Artemis to send a float instead of a piece of text.
+                                        Sending <code>await theRobot.sendCommand(Commands.REQ_FLOAT)</code> instead of the ping command asks the Artemis to send a float.
                                     </p>
                                     <p class="mb-5">
                                         To catch this command, <code>case: REQ_FLOAT</code> is fleshed out in the Arduino sketch. At the top of the program, I calculated pi and stored the value in a float (<code>float pi = 4*atan(1);</code>) to place at the start of the <code>data</code> field, and cast that position to a float pointer. The size of this data transfer is therefore the size of the float, the size of the length field, and the size of the command type combined (6 bytes).
@@ -476,7 +476,7 @@
                                         </pre>
                                     </p>
                                     <p class="mb-5">
-                                        Code already written in <code>main.py</code> unpacks this float (<code>unpack(&quot&ltf&quot,data)</code>) and displays pi. (<code>output: 3.1415927410125732</code>). This is only accurate to the 6th decimal, which makes sense considering <a href="https://embedded.fm/blog/2016/4/12/ew-floating-point#:~:text=In%20IEEE%20754%2C%20the%20float,accurately%20represent%20pi%20as%203.141592."> float's limitations </a> in general. The rest of this data is junk, and therefore comparisons of floats read in this manner must be performed more carefully to remove this extraneous/incorrect information.
+                                        Code already written in <code>main.py</code> unpacks this float (<code>unpack(&quot&ltf&quot,data)</code>) and displays pi. (<code>output: 3.1415927410125732</code>). This is only accurate to the 6th decimal, which makes sense considering <a href="https://embedded.fm/blog/2016/4/12/ew-floating-point#:~:text=In%20IEEE%20754%2C%20the%20float,accurately%20represent%20pi%20as%203.141592." target=”_blank”> float's limitations </a> in general. The rest of this data is junk, and therefore comparisons of floats read in this manner must be performed more carefully to remove this extraneous/incorrect information.
                                     </p>
                                     <h6>Data Rate</h6>
                                     <p class="mb-5">
@@ -554,9 +554,9 @@ if (bytestream_active)
                                         <img src="assets/img/photos/lab2/5mil_5mic_hist.png" class="rounded mx-auto d-block" alt="" />
                                     </p>
                                     <p class="mb-5">
-                                        The spikes in the histogram data likely correspond to integer numbers of dropped packets.
+                                        The spikes in the histogram data likely correspond to integer numbers of successively dropped packets.
 
-                                        Packing data and sending it over bluetooth is clearly going to be useful for this class, so I will have to put time into boosting the successful transfer rate with some tinkering in the next couple of weeks. Dropping over 70% of packets sent will be too unreliable for anything useful.
+                                        Packing data and sending it over bluetooth is clearly going to be useful for this class, so I will have to put time into boosting the successful transfer rate with some tinkering in the next couple of weeks. Dropping over 70% of packets sent will be too unreliable.
                                     </p>
                                     <h6>Lab 2 Supercut Video:</h6>
                                     <div class="embed-responsive embed-responsive-16by9">
@@ -565,6 +565,11 @@ if (bytestream_active)
                                     <p class="mb-5">
                                         This is a supercut of each of these steps in order, since each was short enough to combine them together.
                                     </p>
+                                    <h6>References</h6>
+                                    <ul>
+                                        <li>Chichak, Andrei. Embedded.fm. <a href="https://embedded.fm/blog/2016/4/12/ew-floating-point#:~:text=In%20IEEE%20754%2C%20the%20float,accurately%20represent%20pi%20as%203.141592."> "Embedded Wednesdays: Floating Point Numbers".</a> April 13, 2016. </li>
+                                        <li>Python Software Foundation. docs.python.org. <a href="https://docs.python.org/3/library/struct.html"> "struct — Interpret bytes as packed binary data".</a> September 21, 2020. </li>
+                                    </ul>
                                     </p>
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
