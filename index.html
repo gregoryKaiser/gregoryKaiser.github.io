@@ -72,7 +72,7 @@
                             <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
                             </div>
-                            <img class="img-fluid" src="assets/img/photos/artemis_overhead.jpg" alt="" />
+                            <img class="img-fluid" src="assets/img/photos/lab1/artemis_overhead.jpg" alt="" />
                         </div>
                         <h5 class="text-center">Lab 1: The Artemis Board</h5>
                     </div>
@@ -82,7 +82,7 @@
                             <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
                             </div>
-                            <img class="img-fluid" src="assets/img/portfolio/cabin.png" alt="" />
+                            <img class="img-fluid" src="assets/img/photos/lab2/artemis_ble.jpg" alt="" />
                         </div>
                         <h5 class="text-center">Lab 2: Bluetooth</h5>
                     </div>
@@ -319,11 +319,11 @@
                                         <div class="divider-custom-line"></div>
                                     </div>
                                     <!-- Portfolio Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/artemis_overhead.jpg" alt="" />
+                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/lab1/artemis_overhead.jpg" alt="" />
                                     <!-- Portfolio Modal - Text-->
                                     <h5>Lab 1 Goals</h5>
                                     <p class="mb-5">
-                                        <a href="https://cei-lab.github.io/ECE4960/Lab1.html">Lab 1</a> was focused on getting started with the Artemis board while testing a few of its features.
+                                        <a href="https://cei-lab.github.io/ECE4960/Lab1.html" target=”_blank”>Lab 1</a> was focused on getting started with the Artemis board while testing a few of its features.
                                     </p>
                                     <h5>Lab 1 Report</h5>
                                     <h6>Parts 1 & 2</h6>
@@ -343,13 +343,16 @@
                                     <h6>Part 6</h6>
                                     <p class="mb-5">
                                         A more interesting test involved the "Example1_MicrophoneOutput" sketch where loudest frequency of sound was printed to the serial port. I whistled a few tones to test it out, and then wrote a short block of code inside the example sketch to turn on the blue debug LED on output pin 19 when a tone is heard. Below line 123, I added the following:
-                                        <pre><code>if(ui32LoudestFrequency != 0){
-    digitalWrite(19,HIGH);
-}
-else{
-    digitalWrite(19,LOW);
-}
-                                        </code></pre>
+                                        <pre>
+                                         <code>
+                                    if(ui32LoudestFrequency != 0){
+                                        digitalWrite(19,HIGH);
+                                    }
+                                    else{
+                                        digitalWrite(19,LOW);
+                                    }
+                                         </code>
+                                        </pre>
                                     </p>
                                     <h6>Part 7</h6>
                                     <p class="mb-5">
@@ -388,7 +391,7 @@ else{
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
                                     <!-- Portfolio Modal - Title-->
-                                    <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal2Label">LAB 2: Bluetooth</h2>
+                                    <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal2Label">LAB 2: Bluetooth Connection to the Artemis</h2>
                                     <!-- Icon Divider-->
                                     <div class="divider-custom">
                                         <div class="divider-custom-line"></div>
@@ -396,11 +399,171 @@ else{
                                         <div class="divider-custom-line"></div>
                                     </div>
                                     <!-- Portfolio Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/portfolio/cake.png" alt="" />
+                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/lab2/artemis_ble.jpg" alt="" />
                                     <!-- Portfolio Modal - Text-->
                                     <h5>Lab 2 Goals</h5>
-                                    <p class="mb-5"><a href="https://cei-lab.github.io/ECE4960/Lab2.html">Lab 2</a></p>
+                                    <p class="mb-5"> The walkthrough for <a href="https://cei-lab.github.io/ECE4960/Lab2.html" target=”_blank”>Lab 2</a> guided me through connecting to the Artemis through bluetooth. In this lab the latency and quality of the connection is tested by sending and receiving a number of data packets in both directions.</p>
                                     <h5>Lab 2 Report</h5>
+                                    <h6>Setup</h6>
+                                    <p class="mb-5"> 
+                                        I first successfully set up the class VM, downloaded the provided bluetooth source code, and installed the <code>bleak</code> library. The provided Bluetooth USB Adapter is passed through to the VM by setting its visibility in the VirtualBox settings. My most reliable method for a consistent connection was to make sure that the bluetooth adapter drivers were uninstalled on my Windows machine when a connection was established through the VM.
+                                    </p> 
+                                    <h6>Connect</h6>
+                                    <p class="mb-5">
+                                        By running <code>main.py</code> in the VM, a connection was established to the Artemis. The MAC address of the Artemis is displayed, so I copied that text and replaced <code>cache: None</code> with the appropriate address in <code>settings.txt</code>. Running <code>main.py</code> now connected more consistently to the board, and the Artemis responded with a slower blue LED flash to indicate success.
+                                    </p>
+                                    <h6>Ping</h6>
+                                    <p class="mb-5">
+                                        Running <code>await theRobot.ping()</code> pings the robot and keeps track of how long the round trip data transfer takes. When a ping is requested, the Artemis sends back a command with type <code>PONG</code> instead. The message being sent is a <code>cmd_t</code> struct, with the same data as was received. Printing the data over the Serial port, and checking the source code on line 67 of <code>ece4960robot.py</code>, reveals that the data being sent in a ping is a bytearray of the command number followed by 98 zeros (essentially, length=0 and the 97-byte-long data array is empty). This means the entire command sent back and forth is 99 bytes total. This is the maximum size for a <code>cmd_t</code> as curently structured.
+                                    </p>
+                                    <p class="mb-5">
+                                        I copied the output from the program (data transfer latencies) into a text file to parse in Python to measure the delay. <br>
+
+                                        <img src="assets/img/photos/lab2/ping_lat.png" class="rounded mx-auto d-block" alt="" />
+                                        <img src="assets/img/photos/lab2/ping_lat_hist.png" class="rounded mx-auto d-block" alt="" /><br>
+
+                                        The average latency was about 0.117s and varies from a minimum of 0.108s and a maximum of 0.135s around that value. The bimodal distribution is likely due to dropped packets of data. I'm not sure how to solve this problem, and it has been a persistent issue all week.
+
+                                        Dividing 99 bytes by .117s gives a bit rate of approximately 6770bps, which is lower than one of the lower-bit-rate wired serial options of 9600bps.
+                                    </p>
+                                    <p class="mb-5">
+                                        I did write a separate python and Arduino script to ping the Artemis over a wired serial connection to test this higher data rate, but was unable to test it side-by-side with a similar data structure in time.
+                                        <!-- I wrote a separate python script to send pings to the Artemis over the wired serial port. Using an example from Arduino's <a href="https://www.arduino.cc/en/Tutorial/SerialEvent" target=”_blank”> SerialEvent documentation </a> I was able to echo the data back and keep track of wired transfer latency. On the python side, the ping looked like:
+                                        <pre>
+                                            <code>
+                        port = 'COM5'
+                        transfer = serial.Serial(port, 250000, timeout = 5)
+                        ti = 0
+                        tf = 0
+                        data = 0
+                        i=0
+                        time.sleep(2)
+                        while(i<100):
+                            ti = time.time()#take time
+                            transfer.flush()
+                            transfer.write(bytes("Ping\n", 'utf-8'))#write a ping
+                            data = transfer.readline()#take data
+                            tf = time.time()#take time
+                            #print(data)
+                            print(tf-ti)#calculate delay
+                            i= i+1
+                        print("done")
+                        transfer.close()
+                                            </code>
+                                        </pre>
+                                        The Arduino side is too long to place in line here. The <a href="https://www.arduino.cc/en/Tutorial/SerialEvent" target=”_blank”> SerialEvent documentation </a> is almost exactly the same, but since the serialEvent() function doesn't work on the Artemis, I had to replace it with a <code>while(!Serial.available()){}</code> spinning wait instead of a separate interrupt.
+
+                                        The average latency over the wire was only .00215s, a significant improvement over the bluetooth method.
+
+                                        Of course, by increasing the baud rate of the connection to 250000bps, this latency dropped significantly. -->
+                                    </p>
+                                    <h6>Float Request</h6>
+                                    <p class="mb-5">
+                                        Sending <code>await theRobot.sendCommand(Commands.REQ_FLOAT)</code> instead of the ping command asks the Artemis to send a float instead of a piece of text.
+                                    </p>
+                                    <p class="mb-5">
+                                        To catch this command, <code>case: REQ_FLOAT</code> is fleshed out in the Arduino sketch. The command type and length is set as shown. At the top of the program, I calculated pi and stored the value in a float (<code>float pi = 4*atan(1);</code>) to place at the start of the <code>data</code> field, and cast that position to a float pointer. The size of this data transfer is therefore the size of the float, the size of the length field, and the size of the command type combined.
+                                        <pre>
+                                            <code>
+        case REQ_FLOAT:
+            Serial.println("Going to send a float");
+            res_cmd->command_type = GIVE_FLOAT;
+            res_cmd->length = sizeof(float);
+            ((float*)res_cmd->data)[0] = pi;
+            amdtpsSendData((uint8_t *)res_cmd, sizeof(float)+sizeof(uint8_t)+sizeof(cmd_type_e));
+            break;
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <p class="mb-5">
+                                        Code already written in <code>main.py</code> unpacks this float (<code>unpack(&quot&ltf&quot,data)</code>) and displays pi. (<code>output: 3.1415927410125732</code>). This is only accurate to the 6th decimal, which makes sense with float's limitations in general. The rest of this data is junk, and therefore comparisons of floats read in this manner must be performed more carefully to remove this extraneous/incorrect information.
+                                    </p>
+                                    <h6>Data Rate</h6>
+                                    <p class="mb-5">
+                                        Beginning a constant stream of data from the Artemis allows me to see how fast I can parse data being sent over bluetooth and display on-screen. I started by running <code>theRobot.testByteStream(25)</code> in <code>main.py</code>, and added the line <code>print(unpack(&quot&ltf&quot,data))</code> in the case that <code>code == Commands.BYTESTREAM_TX</code>.
+                                    </p>
+                                    <p class="mb-5">
+                                        On the Arduino side, the command type was already set under the <code>if (bytestream_active)</code> case. To start, I simply loaded a 32-bit integer into <code>res_cmd->data</code>, as with the float transfer. This confirmed that the data was at least being sent and received correctly.
+                                    </p>
+                                    <p class="mb-5">
+                                        Expanding this to more data, I made a <code>struct</code> called <code>packet</code> which I modified to store more than just a single 32-bit number. At one point, it looked like:
+
+                                        <pre>
+                                            <code>
+                        struct packet{
+                          uint32_t mils;
+                          uint32_t count;
+                        };
+                                            </code>
+                                        </pre>
+
+                                        After loading data into this struct, I used <code>memcpy((void *)res_cmd->data, (void *)ptr_eg, sizeof(packet));</code> to place the entire stream of data into the <code>data</code> field. The void pointer <code>ptr_eg</code> refers to a pointer to the filled packet struct of data.
+                                        <pre>
+                                            <code>
+if (bytestream_active)
+    {
+        res_cmd->command_type = BYTESTREAM_TX;
+        res_cmd->length = sizeof(uint32_t)+sizeof(uint32_t)+sizeof(uint64_t);
+        packet_eg.mils = millis();
+        packet_eg.mics = micros();
+        packet_eg.count = trans_count;
+        memcpy((void *)res_cmd->data, (void *)ptr_eg, sizeof(packet));
+        amdtpsSendData((uint8_t *)res_cmd, sizeof(packet)+sizeof(uint8_t)+sizeof(cmd_type_e));
+        trans_count = trans_count+1;
+    }
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <p class="mb-5">
+                                        Of course, this meant modifying the call to <code>unpack()</code> in the python code. Reference was made regularly to the formatting string documentation on python.org: <a href="https://docs.python.org/3/library/struct.html" target=”_blank”> "Interpret bytes as packed binary data" </a>.
+
+                                        In the above case of 2 32-bit integers, 909 of 1181 packets were dropped. This is a terrible 23% success rate. I am still looking into whether or not this is some error on my end, but I am forced to report it as-is. <br>
+
+                                        <img src="assets/img/photos/lab2/mils_count.png" class="rounded mx-auto d-block" alt="" />
+                                        <img src="assets/img/photos/lab2/mils_count_hist.png" class="rounded mx-auto d-block" alt="" />
+                                    </p>
+                                    <p class="mb-5">
+                                        I sent a stream of 32-bit <code>millis()</code> counts, 64-bit <code>micros()</code> counts, and a 32-bit number of transfers sent (along with the 2 bytes of command metadata, in all cases). This stream only had a 26% success rate over more than 2300 attempted transfers.
+                                    </p>
+                                    <p class="mb-5">
+                                        I also sent a stream with five 32-bit numbers, a 32-bit transfer-count variable, and another 5 64-bit numbers, per transfer. <br>
+
+                                        The data struct was:
+                                        <pre>
+                                            <code>
+                        struct packet{
+                          uint32_t mils;
+                          uint32_t mils2;
+                          uint32_t mils3;
+                          uint32_t mils4;
+                          uint32_t mils5;
+                          uint32_t count;
+                          uint64_t mics;
+                          uint64_t mics2;
+                          uint64_t mics3;
+                          uint64_t mics4;
+                          uint64_t mics5;  
+                        };
+                                            </code>
+                                        </pre>
+
+                                        And the parser was:<code>unpack(&quot&ltiiiiiiQQQQQ&quot,data)</code>
+                                        This only had a 17% success rate on transfer, unfortunately. Some results shown below: <br>
+
+                                        <img src="assets/img/photos/lab2/5mil_5mic.png" class="rounded mx-auto d-block" alt="" />
+                                        <img src="assets/img/photos/lab2/5mil_5mic_hist.png" class="rounded mx-auto d-block" alt="" />
+                                    </p>
+                                    <p class="mb-5">
+                                        The spikes in the histogram data likely correspond to integer numbers of dropped packets.
+
+                                        Packing data and sending it over bluetooth is clearly going to be useful for this class, so I will have to put time into boosting the successful transfer rate with some tinkering in the next couple of weeks. Dropping over 70% of packets sent will be too unreliable for anything useful.
+                                    </p>
+                                    <h6>Lab 2 Supercut Video:</h6>
+                                    <p class="mb-5">
+                                        [embed video]
+                                        This is a supercut of each of these steps in order, since each was short enough to combine them together.
+                                    </p>
+                                    </p>
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
