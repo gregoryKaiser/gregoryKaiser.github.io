@@ -462,7 +462,7 @@
                                         Sending <code>await theRobot.sendCommand(Commands.REQ_FLOAT)</code> instead of the ping command asks the Artemis to send a float instead of a piece of text.
                                     </p>
                                     <p class="mb-5">
-                                        To catch this command, <code>case: REQ_FLOAT</code> is fleshed out in the Arduino sketch. The command type and length is set as shown. At the top of the program, I calculated pi and stored the value in a float (<code>float pi = 4*atan(1);</code>) to place at the start of the <code>data</code> field, and cast that position to a float pointer. The size of this data transfer is therefore the size of the float, the size of the length field, and the size of the command type combined.
+                                        To catch this command, <code>case: REQ_FLOAT</code> is fleshed out in the Arduino sketch. At the top of the program, I calculated pi and stored the value in a float (<code>float pi = 4*atan(1);</code>) to place at the start of the <code>data</code> field, and cast that position to a float pointer. The size of this data transfer is therefore the size of the float, the size of the length field, and the size of the command type combined (6 bytes).
                                         <pre>
                                             <code>
         case REQ_FLOAT:
@@ -476,7 +476,7 @@
                                         </pre>
                                     </p>
                                     <p class="mb-5">
-                                        Code already written in <code>main.py</code> unpacks this float (<code>unpack(&quot&ltf&quot,data)</code>) and displays pi. (<code>output: 3.1415927410125732</code>). This is only accurate to the 6th decimal, which makes sense with float's limitations in general. The rest of this data is junk, and therefore comparisons of floats read in this manner must be performed more carefully to remove this extraneous/incorrect information.
+                                        Code already written in <code>main.py</code> unpacks this float (<code>unpack(&quot&ltf&quot,data)</code>) and displays pi. (<code>output: 3.1415927410125732</code>). This is only accurate to the 6th decimal, which makes sense considering <a href="https://embedded.fm/blog/2016/4/12/ew-floating-point#:~:text=In%20IEEE%20754%2C%20the%20float,accurately%20represent%20pi%20as%203.141592."> float's limitations </a> in general. The rest of this data is junk, and therefore comparisons of floats read in this manner must be performed more carefully to remove this extraneous/incorrect information.
                                     </p>
                                     <h6>Data Rate</h6>
                                     <p class="mb-5">
@@ -559,8 +559,10 @@ if (bytestream_active)
                                         Packing data and sending it over bluetooth is clearly going to be useful for this class, so I will have to put time into boosting the successful transfer rate with some tinkering in the next couple of weeks. Dropping over 70% of packets sent will be too unreliable for anything useful.
                                     </p>
                                     <h6>Lab 2 Supercut Video:</h6>
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/iaYlLsLLUy0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    </div>
                                     <p class="mb-5">
-                                        [embed video]
                                         This is a supercut of each of these steps in order, since each was short enough to combine them together.
                                     </p>
                                     </p>
