@@ -22,7 +22,7 @@
         <!-- Navigation-->
         <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav">
             <div class="container">
-                <a class="navbar-brand js-scroll-trigger" href="#page-top">Greg Kaiser - Fast Robot #4</a>
+                <a class="navbar-brand js-scroll-trigger" href="#page-top">Greg Kaiser - Fast Robot #4 - <i>Hot Wheels of Inquiry</i></a>
                 <button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                     Menu
                     <i class="fas fa-bars"></i>
@@ -42,7 +42,7 @@
                 <!-- Masthead Avatar Image-->
                 <img class="rounded-circle" width="300" src="assets/img/profile/headshot_crop.png" alt="" /><br>
                 <!-- Masthead Heading-->
-                <h1 class="masthead-heading text-uppercase mb-0">Gregory Kaiser <br> Fast Robot #4</h1>
+                <h1 class="masthead-heading text-uppercase mb-0">Gregory Kaiser <br> Fast Robot #4: <br> <i>Hot Wheels of Inquiry</i></h1>
                 <!-- Icon Divider-->
                 <div class="divider-custom divider-light">
                     <div class="divider-custom-line"></div>
@@ -92,7 +92,7 @@
                             <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
                             </div>
-                            <img class="img-fluid" src="assets/img/portfolio/cabin.png" alt="" />
+                            <img class="img-fluid" src="assets/img/photos/lab3/side_view_rule.jpg" alt="" />
                         </div>
                         <h5 class="text-center">Lab 3: Characterize Robot #4</h5>
                     </div>
@@ -195,6 +195,7 @@
                     <div class="col-lg-4 ml-auto"><p class="lead">
                     <a href = "https://cei-lab.github.io/ECE4960/" style="color:#030ffc">ECE 4960: Fast Robots </a> is a new class in the Electrical and Computer Engineering department at Cornell University taught by Assistant Professor Kirstin Petersen. </p></div>
                     <div class="col-lg-4 mr-auto"><p class="lead">Gregory Kaiser is a graduate student pursuing a M.Eng. in ECE at Cornell University. </p></div>
+                    <div class="col-lg-4 mr-auto"><p class="lead"><i>Hot Wheels of Inquiry</i> is a play on the starship called <i>Hot Needle of Inquiry</i> from Larry Niven's <a href="https://en.wikipedia.org/wiki/The_Ringworld_Engineers" style="color:#030ffc"> <i>Ringworld Engineers</i></a>. The <i>Needle</i> was used to investigate the far-away Ringworld, and had a great many autonomous systems onboard. <i>Hot Wheels of Inquiry</i> will explore my apartment with the same adventurous spirit as the <i>Needle</i>. </p></div>
                 </div>
                 <!-- About Section Button-->
                 <!-- <div class="text-center mt-4">
@@ -602,9 +603,137 @@ if (bytestream_active)
                                         <div class="divider-custom-line"></div>
                                     </div>
                                     <!-- Portfolio Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/portfolio/circus.png" alt="" />
+                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/lab3/side_view_rule.jpg" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <p class="mb-5"><a href="https://cei-lab.github.io/ECE4960/Lab3.html">Lab 3</a></p>
+                                    <h5>Lab 3 Goals</h5>
+                                    <p class="mb-5">This week the lab guide for <a href="https://cei-lab.github.io/ECE4960/Lab3.html">Lab 3</a> was more open-ended. The goal was to produce a number of measurements that can be used later to inform design decisions for the robot. With Caitlin Stanton as a partner, we chose a few measures we deemed useful for later use.
+                                    </p>
+
+                                    <h5>Lab 3 Report</h5>
+                                    <h6>Part 1: Measuring the Real Vehicle</h6>
+                                    <h7><b>Direct Measurements</b></h7>
+                                    <p class="mb-5">
+                                        I started with some dimensional measurements of various parts of the car to potentially inform modifications later. We measured the distance between the wheels which should be very useful to determine turning radii for given rotation rates, as well as the amount of friction we expect upon turning. These are both good measures once we get greater control over wheel speed. Other measures include the height of the battery case from the ground ("clearance") and the wheel-to-wheel width (helps determine the C-space of the car). I was also able to measure the mass of the car, the battery, and approximately all of the electronics.
+                                    </p>
+                                    <p class="mb-5">
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab3/top_view_annon.jpg" alt="" />
+                                            <figcaption class="figure-caption">A top-view of the vehicle with some measurements superimposed.</figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab3/side_view_annon.jpg" alt="" />
+                                            <figcaption class="figure-caption">A side-view of the vehicle with some measurements superimposed.</figcaption>
+                                        </figure>
+                                    </p>
+
+                                    <p class="mb-5">
+                                        One of the measurements that I think will be especially important during the inverted pendulum task later in the semester are the dimensions (width, diameter) of a single wheel. While I am nervous about removing one of the wheels to weigh it right now, its moment of inertia can be approximated as that of a disk. Because the wheels are geared together, while we balance on two wheels, the other wheels will be rotating, and may mess with whatever model we will use to inform our PID control loop. Even when the robot is "turtled" on its chassis, by spinning the wheels up to maximum speed and then braking (or even just by reaching max wheel speed), the robot can be kicked back into the upright position. This means that this rotational inertia is significant compared to the mass of the vehicle.
+                                    </p>
+
+                                    <p class="mb-5">
+                                        Running the car around for a few minutes was an easy way to see how long it lasted. Driving around on a hardwood surface (mostly turning in circles to drain the battery), I began to see symptoms of declining battery life around 7 minutes in, when one set of wheels began to respond intermittently. The car was still able to drive around well, but if turning in a circle it would start to drift rapidly away from the starting position when one side of the bot was slowing down faster than the other side. [On my robot, the left set of wheels always slowed faster than the right]
+                                    </p>
+
+                                    <p class="mb-5">
+                                        I also ran a "no-load" battery draining test by flipping the car upside-down in a shoe to keep it from jostling itself out of place. With only a few mistakes that account for an error of +/- 20 s maximum, a fully charged battery lasted for almost an hour. Near the end, I saw that the right set of wheels was turning on and off before dying completely. This is probably indicative of either the signals from the controller, or some loop inside the car that determines power to the wheels.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab3/drain_shoe.jpg" alt="" />
+                                            <figcaption class="figure-caption">The robot in a shoe to spin freely. A box and a towel were used to dampen noise, and the controller was taped in the full-forward position.</figcaption>
+                                        </figure>
+                                    </p>
+
+
+                                    <p class="mb-5">
+                                        Below is a table of the direct measurements we made and compiled into a Google Sheet.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab3/data_sheet.png" alt="" />
+                                            <figcaption class="figure-caption">An image of our data sheet, which sorted measurements into units, with experimental tests near the end.
+                                             <!-- The full sheet can be found <a href=""> here</a>. Please forgive disorganization on the sheet used for compiling the velocity/film data. --></figcaption> 
+                                        </figure>
+                                    </p>
+
+                                    <h7><b>Experimental Measurements</b></h7>
+                                    <p class="mb-5">
+                                        The first thing we thought to measure experimentally was speed and acceleration. We found that the robot has only 3 states per pair of side-wheels: off, slow, and fast. The joysticks on the remote control are a red herring, and even slight actuation causes the state to switch from off to "on", at whichever speed is chosen.
+                                    </p>
+
+                                    <p class="mb-5">
+                                        To determine speed, I set up my phone in slow-motion settings to film a wall, on which I placed blue tape at 10 cm increments between their right edges. Driving close to the wall allows me to make some frame-counting measurements of speed inside a video-editing program. Note: I found that my car drifted <i>leftward</i> consistently.
+                                    </p>
+
+                                    <p class="mb-5">
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab3/example_workflow.png" alt="" />
+                                            <figcaption class="figure-caption">The entire editor and image being analyzed.</figcaption>
+                                        </figure>
+
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab3/timeline_accel.png" alt="" />
+                                            <figcaption class="figure-caption">Detail on the timeline flags.</figcaption>
+                                        </figure>
+
+                                        This is the workflow that I was using for a number of trials. You can see the lower-light in the video due to the higher frame rate (240fps) chosen, and the accelerating blue flags on the timeline, which correspond to the frame where the robot crosses each distance marker.
+                                    </p>
+
+                                    <p class="mb-5">
+                                        I found that the robot on "speedy" had an average acceleration of 333 cm/s<sup>2</sup> during its first three segments (30cm), over four trials, and speed levels off at a max of about 200 cm/s, averaged on the last 5 segments, over the same four trials. The "slowly" setting was lower, of course, with a max acceleration of 103 cm/s<sup>2</sup> and max speed of about 107 cm/s. Only one trial was done for the slow setting.
+                                        Sanity Check: 200 cm/s is faster than a brisk walking-pace, which matches my intuition of walking around with the robot.
+
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab3/vel_time_chart.png" alt="" />
+                                            <figcaption class="figure-caption">Velocity over time over four trials. Velocity was calculated with the number of frames to travel a set 10cm interval, and the number of frames was then used to calculate the time since the motion started, with a rate of 240fps (1/8 slow-motion). It is worth noting that the measurements became less realiable over time, as the robot's perspective began to change around the middle of the motion. I failed to make 100% sure that 200cm/s was the maximum speed over a longer distance.</figcaption>
+                                        </figure>
+                                    </p>
+
+
+                                    <p class="mb-5">
+                                        Another experimental measure which will be useful when performing autonomous navigation is the reliability of rotation around the robot's axis. Averaging over 7 observed rotations in slow-motion, I found that the robot rotates at about 2.7 rev/s. I measured drift by taping the starting position of the car, and then going for a full rotation over a number of seconds to determine how far the car drifts over time. This distance is calculated with a ruler, between the center of the starting position to the center of the end position. The car was <i>unreliable</i> when trying to spin "slowly" on hardwood, so the car was run on "speedy for these three runs: While turning clockwise, the car drifted 15.1cm over [] s and about 13.0 cm over [] s. Spinning counter-clockwise, the car drifted 9.9 cm in [] seconds, though this was the third test and the battery may have drained a bit. The drift is consistently rightward, and is consistently upwards for counter-clockwise and downwards for clockwise rotation. This is probably another indication that one set of wheels is stronger than the other on my robot. I did a few trials to confirm the consistency quickly, but didn't measure their distances.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab3/drift_setup.jpg" alt="" />
+                                            <figcaption class="figure-caption">The spin-drift measurement setup, at the start of a trial.</figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab3/drift_measure.jpg" alt="" />
+                                            <figcaption class="figure-caption">The spin-drift measurement itself. In this case, the "slowly" speed was barely able to turn around, and wasn't truly spinning when it drifted to this position.</figcaption> 
+                                        </figure>
+                                    </p>
+
+
+                                    <p class="mb-5">
+                                        Of course, my partner Caitlin was instrumental in gathering a number of both direct and experimental measures. On her <a href="https://caitlinstanton.github.io/fastrobots/"> thoroughly documented website</a>, she tested multiple drive surfaces, and connection to the robot through a number of obstacles and over a 5ft distance, as well as time for the wheels to complete one rotation using the "slow" and "speedy" settings.
+                                    </p>
+
+                                    <!-- <p class="mb-5">
+                                        In terms of stunts, I took a quick video a number of weeks ago to see if the robot cleared the floor at all during a flip. Going from full-speed-ahead to full-reverse, the car turns head-over-heels, but it does not clear the ground. Perhaps if I added more mass to the wheels or car, I could increase the inertia and move the center-of-gravity far enough to perform a "hop".
+                                    </p>
+ -->
+                                    <p class="mb-5">
+                                        From my classmates, I hope to gather a few more pieces of information:
+                                        <ul class="list-group">
+                                            <li class="list-group-item">Wheel backlash/slop</li>
+                                            <li class="list-group-item">Wheel mass (so that I can measure the moment of inertia)</li>
+                                            <li class="list-group-item">Maximum climbable incline</li>
+                                            <li class="list-group-item"><i>Largest</i> consistent turn-radius</li>
+                                        </ul>
+                                    </p>
+
+                                    <h6>Part 2: Measuring the Simulated Vehicle</h6>
+                                    <p class="mb-5">
+                                        After installing necessary dependencies in the VM, and performing the appropriate setup, I was able to run the <code>lab3-manager</code> and saw a map with a green robot awaiting my commands. Running the <code>robot-keyboard-teleop</code> in another terminal window allowed me to control the robot with my keyboard. Toggling the [?] setting in the display window even allowed a 3rd-person view of the robot with 3-dimensional walls.
+                                    </p>
+                                    <p class="mb-5">
+                                        After messing around a bit to get a feel for the control scheme, I started attempting to navigate around corners by either slowing and using the forward-turn keys ('u' and 'o'), or stopping completely ('k') and performing a dime-turn in-place ('j' and 'l'). After increasing the speed, I found out quickly that crashing causes the icon to turn into a warning symbol and stop moving. The robot needs to be "kidnapped" by clicking and dragging with the mouse to reset its position and regain control. 
+                                    </p>
+                                    <p class="mb-5">
+                                        Using the 'q' and 'z' keys, I found that the minimum speed was [] and the maximum speed was []. The maximum rotation speed was about [] and the minimum was []. Because the braking distance was effectively zero, turning around corners required careful control of speed and rotation to prevent a crash. I found the easiest way to get around curves was to head in straight lines and turn on a dime at the corner. Moving faster, however, requires turning while moving (and is a lot harder). 
+                                    </p>
+
+
+                                    <p class="mb-5">
+                                        
+                                    </p>
+
+
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
