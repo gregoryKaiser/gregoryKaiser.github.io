@@ -102,7 +102,7 @@
                             <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
                             </div>
-                            <img class="img-fluid" src="assets/img/portfolio/cabin.png" alt="" />
+                            <img class="img-fluid" src="assets/img/photos/lab4/threeq_crop.jpg" alt="" />
                         </div>
                         <h5 class="text-center">Lab 4: Open Loop Control</h5>
                     </div>
@@ -606,9 +606,8 @@ if (bytestream_active)
                                     <img class="img-fluid rounded mb-5" src="assets/img/photos/lab3/side_view_rule.jpg" alt="" />
                                     <!-- Portfolio Modal - Text-->
                                     <h5>Lab 3 Goals</h5>
-                                    <p class="mb-5">This week the lab guide for <a href="https://cei-lab.github.io/ECE4960/Lab3.html">Lab 3</a> was more open-ended. The goal was to produce a number of measurements that can be used to inform design decisions. Caitlin Stanton was my partner.
+                                    <p class="mb-5">This week the lab guide for <a href="https://cei-lab.github.io/ECE4960/Lab3.html" target=”_blank”>Lab 3</a> was more open-ended. The goal was to produce a number of measurements that can be used to inform design decisions. Caitlin Stanton was my partner.
                                     </p>
-
                                     <h5>Lab 3 Report</h5>
                                     <h6>Part 1: Measuring the Real Vehicle</h6>
                                     <h7><b>Direct Measurements</b></h7>
@@ -625,11 +624,9 @@ if (bytestream_active)
                                             <figcaption class="figure-caption">A side-view of the vehicle with some measurements superimposed.</figcaption>
                                         </figure>
                                     </p>
-
                                     <p class="mb-5">
                                         The dimensions of a single wheel will be important for the inverted pendulum task. I am nervous about removing one of the wheels to weigh it yet, but its moment of inertia can be approximated as that of a disk. Because the wheels are geared together, they'll be spinning in the air while we balance, which may mess with our PID control loop. Even when the robot is "turtled" on its chassis, by spinning the wheels up to maximum speed and then braking (or even just by reaching max wheel speed), the robot can be kicked back into the upright position. This means that this rotational inertia is significant compared to that of the overall vehicle.
                                     </p>
-
                                     <p class="mb-5">
                                         Below is a table of the direct measurements we made and compiled into a Google Sheet.
                                         <figure class="figure">
@@ -638,12 +635,10 @@ if (bytestream_active)
                                             </figcaption> 
                                         </figure>
                                     </p>
-
                                     <h7><b>Battery Drain</b></h7>
                                     <p class="mb-5">
                                         Running the car around allowed me to see how long it lasted. Driving around on a hardwood surface (mostly turning in circles), I began to see symptoms of declining battery life around 7 minutes in, when one set of wheels began to respond intermittently. The car was still able to drive around well, but if turning in a circle it would start to drift rapidly away from the starting position when one side of the bot was slowing down faster than the other side. [On my robot, the left set of wheels always slowed faster than the right]
                                     </p>
-
                                     <p class="mb-5">
                                         I also ran a "no-load" battery draining test by flipping the car upside-down in a shoe until it stopped. A fully charged battery lasted for almost an hour. Near the end, I saw that the right set of wheels was turning on and off before dying completely.
                                         <figure class="figure">
@@ -651,17 +646,13 @@ if (bytestream_active)
                                             <figcaption class="figure-caption">The robot in a shoe spins freely. A box and a towel were used to dampen noise, and the controller was taped in the full-forward position.</figcaption>
                                         </figure>
                                     </p>
-
-
                                     <h7><b>Experimental Measurements</b></h7>
                                     <p class="mb-5">
                                         Some obvious measures are speed and acceleration. We found that the robot has only 3 states per pair of side-wheels: off, slow, and fast. The joysticks on the remote control are a red herring, and even slight actuation causes the state to switch from off to "on", at whichever speed is chosen.
                                     </p>
-
                                     <p class="mb-5">
                                         To determine speed, I set up my phone to film a wall at 240 fps, on which I placed blue tape at 10 cm increments between their right edges. Driving close to the wall allowed me to make some frame-counting measurements of speed inside a video-editing program. Note: I found that my car drifted <i>leftward</i> consistently.
                                     </p>
-
                                     <p class="mb-5">
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab3/example_workflow.png" alt="" />
@@ -672,10 +663,8 @@ if (bytestream_active)
                                             <img class="img-fluid rounded" src="assets/img/photos/lab3/timeline_accel.png" alt="" />
                                             <figcaption class="figure-caption">Detail on the timeline flags.</figcaption>
                                         </figure>
-
                                         Above is the workflow that I was using for a number of trials. You can see the lower-light in the video due to the higher frame rate (240fps) chosen, and the accelerating blue flags on the timeline, which correspond to the frame where the robot crosses each distance marker.
                                     </p>
-
                                     <p class="mb-5">
                                         I found that the robot on "speedy" had an average acceleration of 333 cm/s<sup>2</sup> during its first three segments (30cm), over four trials, and speed levels off at a max of about 200 cm/s, averaged on the last 5 segments, over the same four trials. The "slowly" setting was lower, of course, with a max acceleration of 103 cm/s<sup>2</sup> and max speed of about 107 cm/s. Only one trial was done for the slow setting.
                                         Sanity Check: 200 cm/s is faster than a brisk walking-pace, which matches my intuition of walking around with the robot.
@@ -685,8 +674,6 @@ if (bytestream_active)
                                             <figcaption class="figure-caption">Velocity over time over four trials. Velocity was calculated with the number of frames to travel a set 10cm interval, and the number of frames was then used to calculate the time since the motion started. It is worth noting that the measurements became less realiable over time, as the robot's perspective began to change around the middle of the motion. I failed to make 100% sure that 200cm/s was the maximum speed over a longer distance.</figcaption>
                                         </figure>
                                     </p>
-
-
                                     <p class="mb-5">
                                         The reliability of rotation around the robot's axis is also important. Averaging over 7 observed rotations in slow-motion, I found that the robot rotates at about 2.7 rev/s. I measured drift by taping the starting position of the car, and then rotating to determine how far the car drifts over time. This distance is calculated with a ruler, between the center of the starting position to the center of the end position. The car was <i>unreliable</i> when trying to spin "slowly" on hardwood, so the car was run on "speedy" for three trials: While turning clockwise, the car drifted 15.1cm over 28 s and about 13.0 cm over around 21 s. Spinning counter-clockwise, the car drifted 9.9 cm in 32 seconds, though this was the third test and the battery may have drained a bit. These three average to 0.5 cm/s. The drift is consistently rightward, and is consistently upwards for counter-clockwise and downwards for clockwise rotation. This is probably another indication that one set of wheels is stronger than the other on my robot. I did a few trials to confirm the consistency quickly, but didn't measure their distances.
                                         <figure class="figure">
@@ -698,8 +685,6 @@ if (bytestream_active)
                                             <figcaption class="figure-caption">The spin-drift measurement itself. In this case, the "slowly" speed was barely able to turn around, and wasn't truly spinning when it drifted to this position.</figcaption> 
                                         </figure>
                                     </p>
-
-
                                     <p class="mb-5">
                                         Of course, my partner Caitlin was instrumental in gathering other direct and experimental measures. On her <a href="https://caitlinstanton.github.io/fastrobots/"> thoroughly documented website</a>, she tested the wheel speed and bluetooth reliability.
                                     </p>
@@ -713,7 +698,6 @@ if (bytestream_active)
                                             <li class="list-group-item"><i>Largest</i> consistent turn-radius</li>
                                         </ul>
                                     </p>
-
                                     <h6>Part 2: Measuring the Simulated Vehicle</h6>
                                     <p class="mb-5">
                                         After installing necessary dependencies in the VM, and performing the appropriate setup, I was able to run the <code>lab3-manager</code> and saw a map with a green robot awaiting my commands. Running the <code>robot-keyboard-teleop</code> in another terminal window allowed me to control the robot with my keyboard.
@@ -724,7 +708,6 @@ if (bytestream_active)
                                     <p class="mb-5">
                                         Using the 'q' and 'z' keys, I varied the speed of the robot. The values printed have effectively an infinite range, as far as I can tell. While you can remain completely still (speed = 0) using the 'k' key, there is almost no visual difference past about <code>linear speed 1</code> and <code>angular rate 3</code>, maximums. Because the braking distance was effectively zero, turning around corners required careful control of speed and rotation to prevent a crash. I found the easiest way to get around curves was to head in straight lines and turn on a dime at the corner. Moving faster, however, requires turning while moving (and is a lot harder). 
                                     </p>
-
                                     <h6>Lab 3 Supercut Video:</h6>
                                     <div class="embed-responsive embed-responsive-16by9">
                                         <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/JOwTG6je5sw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -764,9 +747,169 @@ if (bytestream_active)
                                         <div class="divider-custom-line"></div>
                                     </div>
                                     <!-- Portfolio Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/portfolio/game.png" alt="" />
+                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/lab4/overhead_mod_crop.jpg" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <p class="mb-5"><a href="https://cei-lab.github.io/ECE4960/Lab4.html">Lab 4</a></p>
+                                    <h5>Lab 4 Goals</h5>
+                                    <p class="mb-5">This week, <a href="https://cei-lab.github.io/ECE4960/Lab4.html" target=”_blank”>Lab 4</a> asked that I acquire open loop control of <i>Hot Wheels of Inquiry</i>. This required me to dismantle the RC car and attach a motor controller with the Artemis board to start driving my own signals. </p>
+                                    <h5>Lab 4 Report</h5>
+                                    <h6>Get the motor controller connected</h6>
+                                    <p class="mb-5">
+                                        Connecting the Serially Controlled Motor Controller (SCMD) to the Artemis, and running the "Example1_wire" sketch, I found that the I<sup>2</sup>C address of my SCMD is 0x5D. This was displayed over the serial port as the Artemis cycled through potential I<sup>2</sup>C devices. This matches the information found on <a href="https://www.sparkfun.com/products/15451" target=”_blank”> Sparkfun's website </a>.
+                                    </p>
+                                    <h6>Dismantle the car and rewire the motors</h6>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab4/overhead.jpg" alt="" />
+                                        <figcaption class="figure-caption">A few of the supplies I used for dismantling the robot. The pen-looking item on the left is just a screwdriver.</figcaption>
+                                    </figure>
+                                        After taking off the roll-cage part of the car, it started to look more like a standard robot than a child's toy. Removing each piece in sequence was rather straightforward, and mounting the motor connections without needing solder made the process easier overall. Each motor was attached to two leads on the SCMD, corresponding to channel A and B.
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab4/open_fresh_crop.jpg" alt="" />
+                                        <figcaption class="figure-caption">The components in the RC car when I first opened it up. The PCB shown is removed and replaced with the SCMD.</figcaption>
+                                    </figure>
+                                    </p>
+                                    <p class="mb-5">
+                                        I then installed the SCMD library, and tested that the motor connections were working as expected. Simple modifications to the "MotorTest" sketch let me change the speed with which the motors were driven. I used <code>setDrive()</code> to change the value (range: 0-255) which I decreased until the wheels stopped turning while suspended mid-air. For both wheels, this value was around 65-70, depending on battery voltage at the time. While on the ground, static friction holds the wheels until driven significantly higher, around 110 or so, again depending on battery charge.
+
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab4/open_crop.jpg" alt="" />
+                                        <figcaption class="figure-caption">The robot after reattaching the battery and Artemis. The minimum wheel speeds were tested in this configuration.</figcaption>
+                                    </figure>
+                                    </p>
+                                    <p class="mb-5">
+                                        At this point I put the robot back together. I gently pushed the SCMD closer to where the original PCB was mounted, though I was careful not to stress the motor wiring. I re-applied some hot glue on the motors where I thought it had begun to break down. The battery connector was replaced through the plastic to the battery bay. I removed the membrane and a bit of plastic from the original power button so that I could feed the Qwiic connecter through the chassis to the top of the robot where the Artemis sits. 
+
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab4/threeq_crop.jpg" alt="" />
+                                        <figcaption class="figure-caption">An overhead shot after reconstructing the robot chassis, with the Artemis mounted via rubber bands.</figcaption>
+                                    </figure>
+                                    </p>
+                                    <p class="mb-5">
+                                        To test the bias between the sides of the robot, I wrote a sketch that drove the left wheels faster or slower based on a single calibration factor, which gets truncated to an int:
+                                        <pre>
+                                            <code>
+//motor calibration factor
+//to compensate for differences in robot sides
+double CAL_FACTOR = 1.13;
+int speed_r = 150;
+int speed_l = (int) speed_r*CAL_FACTOR;
+
+void loop()
+{
+  delay(1000);//wait on startup
+  
+  Serial.print("R: "); Serial.print(speed_r); 
+  Serial.print("; ");Serial.print("L: "); 
+  Serial.print(speed_l); Serial.println("");
+
+  myMotorDriver.setDrive(0,1,speed_l);//drive one side
+  myMotorDriver.setDrive(1,0,speed_r);//drive one side
+  delay(2000);
+  myMotorDriver.setDrive(1,1,0);//halt
+  myMotorDriver.setDrive(0,1,0);//halt
+  while(1){} //stall
+}
+                                            </code>
+                                        </pre>
+                                        Using a factor of 1.13 drives the left wheel at 169 while the right wheels are driven at 150. Driving for two seconds at this speed results in a mostly-straight path over several feet. While this confirms my suspicions from Lab 3 about a slower left side, I also noticed that the path fo the car would jump rightward at first, and then drift left again after that first moment. This could be due to a number of sources of error in wheel response that will be accounted for once we close our control loop, I'm sure.
+                                    </p>
+
+                                    <h6>Testing open-loop control</h6>
+                                    <p class="mb-5">
+                                        Once I was comfortable with the way the car behaved once rebuilt, I programmed a quick 180-degree open-loop turn:
+                                        <pre>
+                                            <code>
+delay(1000);//wait on startup
+//drive each side for a moment
+Serial.println("Now stepping through the motors.");
+Serial.print("R: "); Serial.print(speed_r); 
+Serial.print("; ");Serial.print("L: "); 
+Serial.print(speed_l); Serial.println("");
+myMotorDriver.setDrive(0,0,speed_l);//forward
+myMotorDriver.setDrive(1,1,speed_r);
+delay(1500);
+myMotorDriver.setDrive(1,1,0);//halt
+myMotorDriver.setDrive(0,1,0);//halt
+delay(2000);
+myMotorDriver.setDrive(0,1,speed_l);//turn
+myMotorDriver.setDrive(1,1,speed_r);
+delay(600);
+myMotorDriver.setDrive(1,1,0);//halt
+myMotorDriver.setDrive(0,1,0);//halt
+delay(2000);
+myMotorDriver.setDrive(0,0,speed_l);//forward
+myMotorDriver.setDrive(1,1,speed_r);
+delay(1500);
+myMotorDriver.setDrive(1,1,0);//halt
+myMotorDriver.setDrive(0,1,0);//halt
+while(1){}
+                                            </code>
+                                        </pre>
+
+                                        I was also able to combine the sketch from Lab 1, which detected the loudest frequency from the microphone, with the motor driving code. I binned frequencies between 600-900 Hz as "turn" frequencies, and between 900-1100 Hz as "forward" frequencies. This let me turn and drive the car with just two notes. The binning was necessary because, on my first pass, I let the noise from the motors trigger the car to continue moving. I used a frequency analyzer app on my phone, and the output from the Artemis, to choose an appropriate cutoff of around 1300 Hz, and then tuned down empirically from there. Nestled inside the PDM example code (along with the motor driver setup), I placed the following:
+                                        <pre>
+                                            <code>
+if(loudest<1100&&loudest>=900){
+    myMotorDriver.setDrive(0,1,speed_l);//forward
+    myMotorDriver.setDrive(1,0,speed_r);
+  }
+  else if (loudest<900&&loudest>600){
+    myMotorDriver.setDrive(0,1,speed_l);//turn
+    myMotorDriver.setDrive(1,1,speed_r);
+  }
+  else{
+    myMotorDriver.setDrive(0,1,0);//halt
+    myMotorDriver.setDrive(1,1,0);
+  }
+                                            </code>
+                                        </pre>
+                                        This program worked better than I expected, and got me excited to start using sensor data to drive the robot.
+                                    </p>
+                                    <p class="mb-5">
+                                        Video demonstrations of straight-line-following, turning, and whistle control can be found in the supercut video at the end of this lab.
+                                    </p>
+
+                                    <h6>Simulation Control</h6>
+                                    <p class="mb-5">
+                                        Setup for the virtual lab was similar to the previous lab, and I took care to perform the order of operations as specified. Once the <code>jupyter lab</code> notebook was running, it was easy enough to control the simulated robot. 
+                                    </p>
+
+                                    <p class="mb-5">
+                                        I designed my one-time script to run straight for a regular interval, and then turn at 3 rad/s for one second, and then repeat until the square was closed. This turn speed was well over the limit of the robot, since turning at about pi rad/s for a second should have resulted in a 180-degree turn, instead of a 90-degree turn. This further confirms that there is a limit on rotation rate, as observed in Lab 3.
+                                        <pre>
+                                            <code>
+robot.set_vel(1,0) #forward
+time.sleep(1)
+robot.set_vel(0,1.5) #turn
+time.sleep(1)
+robot.set_vel(1,0) #forward
+time.sleep(1)
+robot.set_vel(0,1.5) #turn
+time.sleep(1)
+robot.set_vel(1,0) #forward
+time.sleep(1)
+robot.set_vel(0,1.5) #turn
+time.sleep(1)
+robot.set_vel(1,0) #forward
+time.sleep(1)
+robot.set_vel(0,1.5) #turn
+time.sleep(1)
+robot.set_vel(0,0) #stop
+                                            </code>
+                                        </pre>
+                                    </p>
+
+                                    <p class="mb-5">
+                                        Footage of the open-loop rectangle can be found at 0:16 in the supercut video below.
+                                    </p>
+
+                                    <h6>Lab 4 Supercut Video:</h6>
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/AMfIrzzzFLI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    </div>
+                                    <p class="mb-5">
+                                        The usual supercut of each task.
+                                    </p>
+
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
