@@ -112,7 +112,7 @@
                             <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
                             </div>
-                            <img class="img-fluid" src="assets/img/portfolio/cabin.png" alt="" />
+                            <img class="img-fluid rounded mb-5" src="assets/img/photos/lab5/three_quart.jpg" alt="" />
                         </div>
                         <h5 class="text-center">Lab 5: Obstacle Avoidance</h5>
                     </div>
@@ -941,9 +941,246 @@ robot.set_vel(0,0) #stop
                                         <div class="divider-custom-line"></div>
                                     </div>
                                     <!-- Portfolio Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/portfolio/safe.png" alt="" />
+                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/lab5/top_down.jpg" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <p class="mb-5"><a href="https://cei-lab.github.io/ECE4960/Lab5.html">Lab 5</a></p>
+                                    <h5>Lab 5 Goals and Prelab</h5>
+                                    <p class="mb-5">
+                                        This week, <a href="https://cei-lab.github.io/ECE4960/Lab5.html">Lab 5</a> required that we test our time-of-flight (ToF) and proximity sensors, and then implement simple obstacle-avoidance on our robots. Based on the datasheet for each of these sensors, the proximity sensor has a range of 0-200 mm, where the ToF sensor has a range of up to 4 m with a 27 degree field-of-view. My instinct is to mount both sensors to the front of the robot, use the ToF sensor for longer distances, while using the proximity sensor for short-range obstacle-detection. Of course, this would mean that the robot is insensitive to the angle-of-approach, and will hit a wall if attacking at a shallow angle. Walls and obstacles that exist between the wheel and sensor will stall/impact the robot and knock it off-course. Also, while rotating or moving backwards, it will be impossible for the robot to detect an obstacle.
+                                    </p>
+                                    <p class="mb-5">
+                                        Many kinds of distance sensors exist, including ultrasonic, LiDAR, and LED sensors as well as the IR-based proximity and IR laser ToF sensors on this robot. It makes sense to use light-based sensors for this application, assuming that I can keep the lighting in my testing-environments relatively stable. Ultrasonic sensors are likely too bulky and sensitive to environmental variables. LED sensors are a great, cheap option for slower-moving robots, and LIDAR is likely too-long-range and high-current-draw. Sparkfun has a great <a href="https://www.sparkfun.com/distance_sensing" target="_blank"> information page</a> synthesizing a few of these points, and a larger sheet of <a href="https://www.sparkfun.com/distance_sensor_comparison_guide" target="_blank"> comparisons</a> as well.
+                                    </p>
+                                    <p class="mb-5">
+                                        If I could, I would use lower-sensitivity, shorter-range LED sensors as wall detectors pointed perpendicular to my direction of motion. This would inform turn-decisions for my robot. This is very similar to the way distance sensors were used in ECE 3400: Intelligent Physical Systems. 
+                                    </p>
+                                    <h5>Lab 5 Report</h5>
+                                    <h6>Sensor Testing</h6>
+                                    <p class="mb-5">
+                                        I started by finding the address of each sensor. It is necessary to download the Sparkfun libraries using the Arduino library manager prior to gathering data. For the <a href="https://github.com/sparkfun/SparkFun_VCNL4040_Arduino_Library" target="_blank"> VCNL Proximity Sensor </a>, the default address of 0x60 was found, which matches its <a href="https://www.vishay.com/docs/84274/vcnl4040.pdf" target="_blank">datasheet</a>. The VL53L1X Time-of-Flight sensor has a default address of 0x29, which matches the <a href="https://learn.sparkfun.com/tutorials/qwiic-distance-sensor-vl53l1x-hookup-guide/all" target="_blank">Sparkfun information page</a>. Notably, the I<sup>2</sup>C address listed on the <a href="https://cdn.sparkfun.com/assets/8/9/9/a/6/VL53L0X_DS.pdf" target="_blank">VL53L1X datasheet</a> was 0x52 by default. My assumption is that the Sparkfun-packaged board changes this to the default 0x29.
+                                    </p>
+                                    <h6>Proximity Sensor</h6>
+                                    <p class="mb-5">
+                                        To test the proximity sensor I set up a short-range test on my desk. Since the coordinate grid paper disagreed with my ruler by about 10%, I drew my own grid. I modified the "Example4_AllReadings" script into a custom test script which printed 50 readings upon a character request from the Serial port. Using a pink folder, with the lights on and off, and also a metal can, I collected sensor data.
+                                    </p>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab5/4040_setup.jpg" alt="" />
+                                        <figcaption class="figure-caption">The setup I used for testing the proximity sensor over 28 cm.</figcaption>
+                                    </figure>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab5/soda_setup.jpg" alt="" />
+                                        <figcaption class="figure-caption">I aligned the soda can with the center of the sensor and moved it closer 1 cm at a time.</figcaption>
+                                    </figure>
+                                    <p class="mb-5">
+                                        I tested the soda can, because I figured that maybe the cylinder of aluminum would reflect the IR light, and bounce it away from the sensor, messing with the distance readings.
+                                    </p>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab5/4040_lights_on.png" alt="" />
+                                        <figcaption class="figure-caption">The proximity sensor response average over 50 measurements, with standard deviation, measured on short range with the lights on.</figcaption>
+                                    </figure>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab5/4040_lights_off.png" alt="" />
+                                        <figcaption class="figure-caption">The proximity sensor response average over 50 measurements, with standard deviation, measured on short range with the lights off.</figcaption>
+                                    </figure>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab5/4040_lights_on_off.png" alt="" />
+                                        <figcaption class="figure-caption">The proximity sensor response with lights on/off averaged over 50 measurements with standard deviation. While the ambient and white light sensor readings obviously drop off, the IR-based distance readings look almost identical under different (notably artificial) lighting conditions.</figcaption>
+                                    </figure>
+                                    <p class="mb-5">
+                                        Testing the folder, angled folder, and soda can, the shape near the elbow is object-dependent.
+                                    </p>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab5/4040_materials.png" alt="" />
+                                        <figcaption class="figure-caption">The proximity sensor response average over 50 points with standard deviation, measured on short range with the lights on using a paper folder held perpendicularly, at a 45 degree angle, and using a soda can.</figcaption>
+                                    </figure>
+                                    <!-- <p class="mb-5">
+                                        The datasheet revealed a lot about this sensor, and the number of measures it combines to create a more consistent output. This included active ranges for the proximity sensor in comparison with the ambient light sensor.
+                                        Because this sensor has an ambient light sensor (ALS), proximity sensor, and IRED, it is able to compensate somewhat for crosstalk, and ambient-light, according to the datasheet. However, the light channels are somewhat isolated, with the spectral response of the ALS peaking around the 550 nm point, and the proximity sensor around 900 nm.
+                                    </p>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab5/4040_spectrum.png" alt="" />
+                                        <figcaption class="figure-caption">The spectral response of the proximity sensor, reported in its datasheet, shows that the IR sensor overlaps very little with the human-visible range. </figcaption>
+                                    </figure> -->
+                                    <p class="mb-5">
+                                        The default testing program had a very delayed response time to obstacles of about 4 seconds. However, timing the isolated information request with <code>micros()</code> revealed a delay of only 0.63 ms for any of the sensor readings, independent of environmental conditions.
+                                    </p>
+                                    <h6>Time-Of-Flight Sensor</h6>
+                                    <p class="mb-5">
+                                        To test the ToF sensor, I started with the same setup as the proximity sensor, to see to what extent they differ on that short range. Because the readings are more precise on the ToF sensor, I used the grey target provided to us to calibrate the 140 mm reading in the sensor's memory. The "Example7_Calibration" sketch required modifications to get it to work correctly (I had to add the line <code>distanceSensor.startRanging();</code> around line 92). White cardboard and a shiny pink folder had no difference in ToF reading.
+                                    </p>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab5/ToF_calib.jpg" alt="" />
+                                        <figcaption class="figure-caption">Calibrating the ToF sensor with a grey target.</figcaption>
+                                    </figure>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab5/long_dist.jpg" alt="" />
+                                        <figcaption class="figure-caption">While not precisely the setup I used, this is the spirit of the long-distance ToF sensor testing. In reality the tape pieces extended about 4 m away from the wall.</figcaption>
+                                    </figure>
+                                    <p class="mb-5">
+                                        To speed up the measurement rate, one can modify the inter-measurement period (IMP), and the timing budget, for a given application. The minimum budget is 20ms, and by setting the IMP below this number, measurements are made repeatedly as fast as possible, according to the <a href="https://cdn.sparkfun.com/assets/e/1/8/4/e/VL53L1X_API.pdf" target="_blank"> user manual</a>. One can also modify the operating range: 1.3m, 3m, and the full 4m range. For the relatively small distances around the floor of my apartment between obstacles, I went with the shorter-range 1.3m setting for obstacle avoidance.
+                                    </p>
+                                    <p class="mb-5">
+                                        Given a max robot speed of about 200cm/s, and a ToF reading every 20ms, I get a sensor reading every 4 mm of travel. I opted for this fastest-reads option for now.
+                                        <!-- maximize performance, but am open to increasing the IMP if significant drawbacks arise in accuracy or in processor-stall due to request delays. -->
+                                    </p>
+                                    <p class="mb-5">
+                                        Using the "Example3_StatusAndRate" sketch, I found that rapidly approaching the sensor leads to a failure mode called "Wrapped target fail". This also occurred when I placed my hand in the beam of the sensor suddenly. These errors were quite rare, but it means that rapidly approaching an obstacle might cause the sensor to become less reliable, incentivising my use of multiple sensors for obstacle detection. The signal rate went up when the object moved towards the sensor, and sharply down when moving away. Slow-speed measures at long-distance should work well enough to stop a crash.
+                                    </p>
+                                    <p class="mb-5">
+                                        I tested the long-range of the ToF sensor after mounting to the robot. Using <code>micros()</code>, the read time from ranging start to finish was about 20 ms, which was set by the timing budget, though the request itself only takes 0.73 ms when the IMP is less than the budget (rapid-reads).
+                                    </p>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab5/ToF_long_short.png" alt="" />
+                                        <figcaption class="figure-caption">The ToF sensor response average over 50 measurements with standard deviation over long and short distances. Using the long-range mode, the ToF sensor has roughly accurate linear readings of distance in mm, but trends away from accuracy as the limit of the sensor is reached. The orange line is the short distance test, detail below. </figcaption>
+                                    </figure>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab5/ToF_short.png" alt="" />
+                                        <figcaption class="figure-caption">The ToF sensor response average over 50 measurements with standard deviation, measured on the same range as the proximity sensor. It shows more instability for very-nearby objects than the proximity sensor, but behaves much better past several cm, and presumably onward through over a meter.</figcaption>
+                                    </figure>
+                                    <p class="mb-5">
+                                        The sensor seems insensitive to texture/color based on the number of walls and objects whose range it could detect.
+                                    </p>
+                                    <h6>Robot Mounting</h6>
+                                    <p class="mb-5">
+                                        Using the double-sided foam pieces, cut to small sizes, I mounted the IMU, ToF sensor, proximity sensor, and the Artemis board to the robot chassis. I mounted my sensors vertically along the center axis of the vehicle. Daisy-chaining the sensors together allowed them all equal access to the Artemis, though some cable-management might have to be improved in the future.
+                                    </p>
+                                    <figure class="figure">
+                                        <img class="img-fluid rounded" src="assets/img/photos/lab5/three_quart.jpg" alt="" />
+                                        <figcaption class="figure-caption">My sensor arrangement for this lab. The through-holes for the original roll-cage could be exploited for a 3D-printed bracket.</figcaption>
+                                    </figure>
+                                    <h6>Obstacle Avoidance</h6>
+                                    <p class="mb-5">
+                                        I started with a simple threshold for the proximity sensor to stop the robot. This worked okay at low-speed, but the robot drifted into obstacles often. Switching to the ToF sensor readings alone proved much more sensitive to obstacles.
+                                    </p>
+                                    <p class="mb-5">
+                                        To prevent the drifting issue at high speeds, I created an active braking function called <code>hardstop()</code> which drives the wheels in reverse for 200 ms at whatever speed they were previously being driven. This halts the robot much more suddenly, and has the added benefit of causing the robot to backup just a bit if it detects a wall while stationary. This gives some distance for the robot to continue its random-motion path.
+                                    </p>
+                                    <pre>
+                                        <code>
+void hardstop(){
+  myMotorDriver.setDrive(0,1,speed_l);//reverse for a touch
+  myMotorDriver.setDrive(1,0,speed_r);
+  delay(200);
+  myMotorDriver.setDrive(0,0,0);
+  myMotorDriver.setDrive(1,0,0);
+}
+                                        </code>
+                                    </pre>
+                                    <p class="mb-5">
+                                        Once a wall is detected with either sensor, I programmed the robot to turn for a random amount of time between 350 and 900 ms. I chose these values to empirically appear to turn the robot between 90 and 270 degrees, turning it <i>away</i> from the obstacle that stopped it in the first place.
+                                    </p>
+                                    <pre>
+                                        <code>
+if(dist<250){//WALL! STOP
+  hardstop();
+  delay(1000);
+  myMotorDriver.setDrive(0,1,180);/turn
+  myMotorDriver.setDrive(1,1,160);
+  delay((int)random(350,900));
+  hardstop();
+  delay(1000);
+  myMotorDriver.setDrive(0,0,speed_l);//drive one side - LEFT
+  myMotorDriver.setDrive(1,1,speed_r);//drive one side - RIGHT
+}
+                                        </code>
+                                    </pre>
+                                    <p class="mb-5">
+                                        The last algorithm I tried was aimed at stopping at a wall, without flipping, after being at maximum speed for some amount of time on-approach. During robot testing in Lab 3, I found that the best hard-braking I could accomplish used the "slowly" setting to quickly ramp speed down close to the wall, and then hard-reversing to halt in place. To create this same effect, I created four speed ranges for the robot depending on its distance to a wall. Over a meter away, the bot goes at full speed. Each bracket under 1000 mm, 750 mm, 500 mm corresponds to a drop in speed, and finally the robot will stop at <250 mm. 
+                                    </p>
+                                    <pre>
+                                        <code>
+    if(dist>750&&dist<=1000){//wall incoming! slow it down
+      speed_l = 160;
+      speed_r = (int) speed_l*CAL_FACTOR;
+      myMotorDriver.setDrive(0,0,speed_l);//drive one side - LEFT
+      myMotorDriver.setDrive(1,1,speed_r);//drive one side - RIGHT
+      bracket=1;
+    }
+    else if(dist>500&&dist<=750){//wall closing! slow it down
+      speed_l = 120;
+      speed_r = (int) speed_l*CAL_FACTOR;
+      myMotorDriver.setDrive(0,0,speed_l);//drive one side - LEFT
+      myMotorDriver.setDrive(1,1,speed_r);//drive one side - RIGHT
+      bracket = 2;
+    }
+    else if(dist>250&&dist<=500){//wall closing! slow it down
+      speed_l = 75;
+      speed_r = (int) speed_l*CAL_FACTOR;
+      myMotorDriver.setDrive(0,0,speed_l);//drive one side - LEFT
+      myMotorDriver.setDrive(1,1,speed_r);//drive one side - RIGHT
+      bracket = 3;
+    }
+    else if(dist<=250){//WALL! STOP
+      hardstop();
+      delay(3000);
+    }
+    else {
+      speed_l = 220;
+      speed_r = (int) speed_l*CAL_FACTOR;
+      myMotorDriver.setDrive(0,0,speed_l);//drive one side - LEFT
+      myMotorDriver.setDrive(1,1,speed_r);//drive one side - RIGHT
+      bracket = 0;
+    }
+    
+                                        </code>
+                                    </pre>
+                                    <p class="mb-5">
+                                        Each of these crude polling methods worked fairly well, and active braking is especially fun to see when the car almost flips over to stop short. However, it still doesn't prevent 100% of crashes. When turning, the robot sometimes spins or reverses into a wall, where there are no sensors. A common failure mode is not noticing a wall approaching from a shallow angle. Correcting for this merely by increasing the distance threshold would make the robot much too sensitive to obstacles when approaching head-on. See the Supercut below for videos of a number of obstacle-avoiding examples.
+                                    </p>
+
+                                    <h6>Simulation Obstacle Avoidance</h6>
+                                    <p class="mb-5">
+                                        Inside the simulation, I tried to set up a similar algorithm to the actual robot implementation. Upon repeated reads, if the distance sensor sees a low value, the robot will stop and turn a random amount to continue moving. This algorithm suffers the same drawbacks as the physical version, namely that shallow angles will still cause crashes, and rotation too close to a wall will also cause a crash. I can mitigate this by increasing the distance threshold so that rotation occurs farther away. Another method might be to simply reverse backwards for some short amount of time before turning. The vehicle also clips walls because the sensor beam is narrow near its body. Taking a short angular sweep every now and again might prevent this issue, though I didn't get around to testing such an algorithm.
+                                    </p>
+                                    <pre>
+                                        <code>
+def perform_obstacle_avoidance(robot):
+    dist = 0
+    #start rollin
+    ti = time.time() #used for timing the velocity command
+    robot.set_vel(1,0)
+    tf = time.time()
+    print(tf-ti)
+    while True:
+        # Obstacle avoidance code goes here
+        
+        #get distance
+        dist = robot.get_laser_data()
+        if dist<.6:#wall! stop and/or turn
+            robot.set_vel(0,0)
+            turn_dir = random.random()
+            if turn_dir>.5:
+                robot.set_vel(0,3)
+            else:
+                robot.set_vel(0,-3)
+            time.sleep(1+2*random.random()) #turn between 90 and 270 degrees
+            robot.set_vel(1,0)
+        time.sleep(0.1)
+           
+perform_obstacle_avoidance(robot)
+                                        </code>
+                                    </pre>
+                                    <p class="mb-5">
+                                        Timing the velocity command, I found it to be almost instantaneous around .0003 to .0004 seconds in the jupyter notebook, and can send essentially perfect stops. However, when attempting to take a 10-point sliding average, the memory manipulation takes too long and causes a number of crashes that wouldn't otherwise occur with raw, noisy readings.
+                                    </p>
+                                    <p class="mb-5">
+                                        Going as fast as possible, the robot manages to stop with raw reads of 0.4 m. Anything under this causes consistent crashing. Examples of avoidance running in the sim can be found at about 02:56 in the supercut video below.
+                                    </p>
+                                    <h5>Conclusions</h5>
+                                    <p class="mb-5">
+                                        In order to make this system more robust, I think that separating the sensors across the width of the robot could help. Apart from simply being able to sense obstacles before the wheels make impact, an angle of approach might be roughly calculable based on the difference in reading.
+                                    </p>
+                                    <p class="mb-5">
+                                        The sensitivity of the proximity sensor to ambient light can be controlled through testing conditions, and its unreliability and non-linear mapping to distance compared to the ToF sensor may be outweighed by its overall higher-frequency response (if you take into account the 20 ms ToF budget compared with the 0.6 ms proximity sensor read). I will have to carefully consider whether it is best used as a paired front-facing camera, or as a rear reverse camera to assist with turns/reversing. 
+                                    </p>
+                                    <p class="mb-5">
+                                        
+                                    </p>
+                                    <h5>Lab5 Video Supercut</h5>
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/64KPR8iUEZA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    </div>
+                                    <p class="mb-5">The usual supercut. A bit rougher coverage than usual.</p>
+
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
