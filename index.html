@@ -1214,11 +1214,11 @@ perform_obstacle_avoidance(robot)
                                     <!-- Portfolio Modal - Image-->
                                     <img class="img-fluid rounded mb-5" src="assets/img/photos/lab6/imu_img.jpg" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <h5>Lab 4 Goals</h5>
+                                    <h5>Lab 6 Goals</h5>
                                     <p class="mb-5">
                                         This week, <a href="https://cei-lab.github.io/ECE4960/Lab6.html">Lab 6</a> was centered around enabling <i>Hot Wheels of Inquiry</i> to determine its orientation using an Inertial Measurement Unit (IMU). I spent many hours increasing the reliability of these measures, and implementing a controlled rotation of the robot.
                                     </p>
-                                    <h5>Lab 4 Report</h5>
+                                    <h5>Lab 6 Report</h5>
                                     <h6>Setup IMU</h6>
                                     <p class="mb-5">
                                         Connecting to the IMU was easy, and I already sanity-checked its outputs during lecture time. The address matches what is listed on <a href="https://www.sparkfun.com/products/15335" target="_blank">Sparkfun </a>, and on the <a href="https://cdn.sparkfun.com/assets/7/f/e/c/d/DS-000189-ICM-20948-v1.3.pdf" target="_blank">datasheet</a> (page 14, Ad0=1): 0x69. If the board is aligned flat against a surface either on its face or on an edge, the accelerometer reads about 1000 in one axis, corresponding to 1000 milli-g's or 1g of acceleration on Earth. This vector sweeps through the other axes while maintaining its magnitude, if swept slowly. On the gyroscope channel, rotation rates in degrees-per-second hover below 4-5 dps in magnitude. While isolated from obstacles, the magnetometer channel reads the Earth's magnetic field around several 10s of microteslas, <a href="https://web.ua.es/docivis/magnet/earths_magnetic_field2.html" target="_blank">which is about right</a>. On the robot, however, ithe magnet motors throw this reading off into the hundreds of microtesla range. <br>
@@ -1318,7 +1318,7 @@ perform_obstacle_avoidance(robot)
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/north_point.jpg" alt="" />
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/north_point_read.jpg" alt="" />
-                                            <figcaption class="figure-caption">The magnetometer didn't consistently hold steady at zero, but was close enough to identify North and match it to my cell phone application.</figcaption>
+                                            <figcaption class="figure-caption">The magnetometer didn't consistently hold steady at zero, but was close enough to identify North and match it to my cell phone application. See 1:15 in the supercut video for direct observation.</figcaption>
                                         </figure><br>
                                     </p>
                                     <h6>Start Calibration</h6>
@@ -1524,10 +1524,10 @@ pid_out += kd*d_error;
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/long_wait_corner_crop.png" alt="" />
                                             <figcaption class="figure-caption">By waiting at points and then moving forward again, the ground truth (green) will hold the same trajectory while the odometry (red) heads in another direction from the pivot.</figcaption>
                                         </figure><br>
-                                        See footage below for real-time plotting.
+                                        See footage below (3:20) for real-time plotting.
                                         <h5>Lab6 Video Supercut</h5>
                                         <div class="embed-responsive embed-responsive-16by9">
-                                            <iframe class="embed-responsive-item" src="" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                            <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/H1vVdcxtLSk" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                         </div>
                                         <p class="mb-5">The usual supercut of a few milestones in this lab.</p>
                                     </p>
