@@ -1216,21 +1216,21 @@ perform_obstacle_avoidance(robot)
                                     <!-- Portfolio Modal - Text-->
                                     <h5>Lab 6 Goals</h5>
                                     <p class="mb-5">
-                                        This week, <a href="https://cei-lab.github.io/ECE4960/Lab6.html">Lab 6</a> was centered around enabling <i>Hot Wheels of Inquiry</i> to determine its orientation using an Inertial Measurement Unit (IMU). I spent many hours increasing the reliability of these measures, and implementing a controlled rotation of the robot.
+                                        This week, <a href="https://cei-lab.github.io/ECE4960/Lab6.html">Lab 6</a> was centered around enabling <i>Hot Wheels of Inquiry</i> to determine its orientation using an Inertial Measurement Unit (IMU). I increased the reliability of these measures, and implemented a controlled rotation of the robot.
                                     </p>
                                     <h5>Lab 6 Report</h5>
                                     <h6>Setup IMU</h6>
                                     <p class="mb-5">
-                                        Connecting to the IMU was easy, and I already sanity-checked its outputs during lecture time. The address matches what is listed on <a href="https://www.sparkfun.com/products/15335" target="_blank">Sparkfun </a>, and on the <a href="https://cdn.sparkfun.com/assets/7/f/e/c/d/DS-000189-ICM-20948-v1.3.pdf" target="_blank">datasheet</a> (page 14, Ad0=1): 0x69. If the board is aligned flat against a surface either on its face or on an edge, the accelerometer reads about 1000 in one axis, corresponding to 1000 milli-g's or 1g of acceleration on Earth. This vector sweeps through the other axes while maintaining its magnitude, if swept slowly. On the gyroscope channel, rotation rates in degrees-per-second hover below 4-5 dps in magnitude. While isolated from obstacles, the magnetometer channel reads the Earth's magnetic field around several 10s of microteslas, <a href="https://web.ua.es/docivis/magnet/earths_magnetic_field2.html" target="_blank">which is about right</a>. On the robot, however, ithe magnet motors throw this reading off into the hundreds of microtesla range. <br>
+                                        The IMU address matches what is listed on <a href="https://www.sparkfun.com/products/15335" target="_blank">Sparkfun </a>, and on the <a href="https://cdn.sparkfun.com/assets/7/f/e/c/d/DS-000189-ICM-20948-v1.3.pdf" target="_blank">datasheet</a> (page 14, Ad0=1): 0x69. If the board is aligned flat against a surface either on its face or on an edge, the accelerometer reads about 1000 in one axis, corresponding to 1000 milli-g's or 1g of acceleration on Earth. This vector sweeps through the other axes while maintaining its magnitude, if swept slowly. On the gyroscope, rotation rates in degrees-per-second hover below 4-5 dps in magnitude. While isolated from obstacles, the magnetometer channel reads the Earth's magnetic field around several 10s of microteslas, <a href="https://web.ua.es/docivis/magnet/earths_magnetic_field2.html" target="_blank">which is about right</a>. On the robot, however, the magnet motors throw this reading off into the hundreds of microtesla range. <br>
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/basic_out.png" alt="" />
                                             <figcaption class="figure-caption">Output of the IMU from the Basics example script. The magnetometer is reading high values because the IMU is mounted to the robot's surface.</figcaption>
                                         </figure>
-                                        While the default output string from "Example1_Basics" is nice, I used <a href="https://hackaday.io/project/5334-serialplot-realtime-plotting-software" target="_blank">SerialPlot</a> to gather data from here going forward.
+                                        I used <a href="https://hackaday.io/project/5334-serialplot-realtime-plotting-software" target="_blank">SerialPlot</a> to gather data from the IMU.
                                     </p>
                                     <h6>Accelerometer</h6>
                                     <p class="mb-5">
-                                        Starting with "Example2_Advanced" for its output range settings, I modified data reads to store raw acceleration data in floats: <code>ax</code>, <code>ay</code>, <code>az</code>. Pitch and roll are calculated as in class, and are low-pass filtered just for visual's sake:
+                                        Starting with "Example2_Advanced", I modified data reads to store raw acceleration data in floats: <code>ax</code>, <code>ay</code>, <code>az</code>. Pitch and roll are calculated as below, and are filtered:
                                         <pre>
                                             <code>
     pitch_prev_a = pitch_a;
@@ -1239,7 +1239,7 @@ perform_obstacle_avoidance(robot)
     roll_a = ALPHA_R_A*atan2(ay,az)*degperpi+(1-ALPHA_R_A)*roll_prev_a;
                                             </code>
                                         </pre>
-                                        where <code>ALPHA_P_A</code> and <code>ALPHA_R_A</code> are 0.45. Holding the sensor up to a vertical object on my table allowed me to check visually that both were reading about +/-90 degrees at their maximum extent. I therefore did not need to perform a two-point calibration.
+                                        where <code>ALPHA_P_A</code> and <code>ALPHA_R_A</code> are 0.45. Holding the sensor up to a vertical object on my table allowed me to check that both read about +/-90 degrees at their maximum extent. I therefore did not need to perform a two-point calibration.
 
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/simple_pitch_roll_img.png" alt="" />
@@ -1306,15 +1306,15 @@ perform_obstacle_avoidance(robot)
                                     </p>
                                     <h6>Magnetometer</h6>
                                     <p class="mb-5">
-                                        The magnetometer was quite difficult to use, and its output was hard to handle usefully (stored raw values in <code>mx</code>, <code>my</code>, and<code>mz</code>). While the IMU is isolated, readings are calculated relatively well, and a measure of yaw is found by projecting the magnetic field onto the x-y plane of the robot. This gives a heading relative to North, and is calculated using equations given/derived in class:
+                                        The magnetometer was quite difficult to use, and its output was hard to handle usefully (stored raw values in <code>mx</code>, <code>my</code>, and <code>mz</code>). While the IMU is isolated, readings are okay, and a measure of yaw is found by projecting the magnetic field onto the x-y plane of the robot. This gives a heading relative to North, and is calculated using equations given/derived in class:
                                         <pre>
                                             <code>
     x_proj_m = mx*cos(pitch_g*radperdeg)-mz*sin(pitch_g*radperdeg);
-    y_proj_m = mx*sin(pitch_g*radperdeg)*sin(roll_g*radperdeg)-my*cos(roll_g*radperdeg)+mz*cos(pitch_g*radperdeg)*cos(roll_g*radperdeg);
-    yaw_g = atan2(y_proj_m,x_proj_m);
+    y_proj_m = my*cos(roll_g*radperdeg)+mx*sin(roll_g*radperdeg)*sin(pitch_g*radperdeg)+mz*cos(pitch_g*radperdeg)*sin(roll_g*radperdeg);
+    yaw_g = degperrad*atan2(y_proj_m,x_proj_m);
                                             </code>
                                         </pre>
-                                        Keeping the IMU flat on the table, the point where the y-direction on the IMU is perpendicular to North causes the yaw calculation to drop to zero. This is how I identified North in my room, verified by a smartphone app. When pointed South, the reading will flip to read +/-180 degrees, since that is the point where the calculation changes sign. My output was not very robust to changes in pitch, but I spent a good amount of time triple checking the yaw projection math. No matter what I tried, tilting the IMU above a small angle caused the yaw reading to drastically change.
+                                        Keeping the IMU flat on the table, the point where the y-direction on the IMU is perpendicular to North causes the yaw calculation to drop to zero. This is how I identified North in my room, verified by a smartphone app. When pointed South, the reading will flip back and forth between the maximum and minimum value. My output was not very robust to changes in pitch, but I spent a good amount of time trying other versions of the yaw projection math. No matter what I tried, tilting the IMU above a small angle caused the reading to drastically change. I decided to forego two-point calibration in favor of a pure-gyroscope yaw estimate.
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/north_point.jpg" alt="" />
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/north_point_read.jpg" alt="" />
@@ -1396,13 +1396,13 @@ time_now = millis();
 delay(sample-(time_now-time_start));//delay for the remaining sample time
                                             </code>
                                         </pre>
-                                        A packet of data is sent each cycle, containing whatever I needed. This started as pitch, roll, and yaw, but ended with the raw gyroscope reading in z as a <code>float</code>, along with the motor signal for that cycle in a <code>uint32_t</code> called <code>motor_sig</code>. It is decoded on the computer side with <code>unpack(<q>&ltfI</q>, data)</code>.
+                                        A packet of data is sent each cycle. This started as pitch, roll, and yaw, but ended with the raw gyroscope reading in z as a <code>float</code>, along with the motor signal for that cycle in a <code>uint32_t</code> called <code>motor_sig</code>. It is decoded on the computer side with <code>unpack(<q>&ltfI</q>, data)</code>.
                                     </p>
                                     <p class="mb-5">
-                                        Despite running on hardwood, the robot jitters quite a lot while spinning. The yaw estimate accumulates angle as expected, and the gyroscope reading shows the large deadband on either side, as well as the fact that one side starts rotating before the other. There is also significant hysteresis, since the deadbancs on either side have different cutoffs, and there is less of a one-wheel phenomenon when the robot is stopping.
+                                        Despite running on hardwood, the robot jitters quite a lot while spinning. The yaw estimate accumulates angle as expected, and the gyroscope reading shows the large deadband on either side, as well as the fact that one side starts rotating before the other. There is also significant hysteresis, since the deadbands on either side have different cutoffs, and there is less of a one-wheel phenomenon when the robot is stopping.
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/ramp_test_gyr.png" alt="" />
-                                            <figcaption class="figure-caption">the z-axis gyroscope reading across this ramp test showed a limited "linear" range between motor signal above 210 (rising) and above 170 (falling).</figcaption>
+                                            <figcaption class="figure-caption">The z-axis gyroscope reading across this ramp test showed a limited "linear" range between motor signal above 210 (rising) and above 170 (falling). See 1:32 in the Lab 6 Supercut for a demonstration.</figcaption>
                                         </figure><br>
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/ramp_test_yaw.png" alt="" />
@@ -1411,12 +1411,12 @@ delay(sample-(time_now-time_start));//delay for the remaining sample time
                                     </p>
                                     <h7><b>2: Minimum Rotation Signal</b></h7>
                                     <p class="mb-5">
-                                        Running the robot at a constant motor signal, I tried to lower the signal being sent until the robot spun consistently. Unfortunately, because of the huge amount of jitter on hardwood, The rotation was either very high, giving a very noisy gyroscope reading, or so low that the robot stopped and started again, with either side of wheels catching occasionally and inconsistently.
+                                        I ran the robot with a constant motor signal to see how slow I could go. Unfortunately, because of the huge amount of jitter on hardwood, The rotation was either very high, giving a very noisy gyroscope reading, or so low that the robot stopped and started again, with either side of wheels catching occasionally and inconsistently.
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/const_test.png" alt="" />
-                                            <figcaption class="figure-caption">Driving the motor with signal 180 (blue), 195 (orange), and 210 (grey), show that while a low signal can't spin at all, and a higher signal spins but occasionally sticks and stops, a high signal of 210 is the slowest possible for a relatively constant rotation.</figcaption>
+                                            <figcaption class="figure-caption">Driving the motor with PWM signal 180 (blue), 195 (orange), and 210 (grey), show that while a low signal can't spin at all, and a higher signal spins but occasionally sticks and stops, a high signal of 210 is the slowest possible for a relatively constant rotation.</figcaption>
                                         </figure><br>
-                                        The slowest that I could drive open loop was with a motor output of 210 and a gyro reading of 350 deg/s.
+                                        The slowest that I could drive open loop was with a motor output of 210 and a gyro reading of around 350 deg/s.
                                     </p>
                                     <h7><b>3: Sampling Calculations</b></h7>
                                     <p class="mb-5">
@@ -1426,29 +1426,29 @@ delay(sample-(time_now-time_start));//delay for the remaining sample time
                                         If a robot were rotating at 350 deg/sec, it will have rotated 7 degrees every 20ms. This means that, if faced perpendicular to a wall 0.5 m away, the wall will now appear <code>0.5m/cos(7*PI/180) = 0.503m</code> away, or 3mm farther. If it started at a 45 degree angle instead, it would now face at a 52 degree angle, changing its distance measure from 0.707m to 0.812m. This is a much more significant jump on the order of 10s of cm.
                                     </p>
                                     <p class="mb-5">
-                                        Based on my experiments from Lab 5, the failure to collect signal only occurred when jumps 10's of cm happened in fractions of a second. While this first case does not meet the criteria, turning from a 45 degree angle to a 52 degree angle in 20ms could cause the ToF sensor to throw a flag.
+                                        Based on my experiments from Lab 5, the failure to collect readings only occurred when jumps 10's of cm happened in fractions of a second. While this first case does not meet the criteria, turning from a 45 degree angle to a 52 degree angle in 20ms could cause the ToF sensor to throw an error.
                                     </p>
                                     <p class="mb-5">
                                         Spinning as slow as 100 deg/s, as achieved by the end of this lab, causes that problem to be much less pronounced, since the robot will turn at 2 degrees every sample, and would therefore cause a change in distance-reading of only 26 mm between 45 and 47 degrees.
                                     </p>
                                     <h6>PID: Process at High Speed</h6>
                                     <p class="mb-5">
-                                        To slow down the rate of rotation, yet maintain a steady scan, I implemented a PID control scheme over many hours of tuning and testing. The method I chose centered on my experience tuning PID systems in the past, and relied on a slow cycle of reading data over bluetooth, plotting it, and then making adjustments. If I were to do it again, I would invest time up-front in a tuning cycle that allowed me to send new PID parameters over bluetooth, and read signal data via SerialPlot.
+                                        To slow down the rate of rotation, yet maintain a steady scan, I implemented a PID control scheme over many hours of tuning and testing. The method I chose centered on my experience tuning PID systems in the past, and relied on a slow cycle of reading data over bluetooth, plotting, and then making adjustments. If I were to do it again, I would invest time up-front in a tuning cycle that allowed me to send new PID parameters over bluetooth, and read signal data via SerialPlot.
                                     </p>
                                     <p class="mb-5">
-                                        The error is calculated on each cycle as a difference between a setpoint of rotation rate and the gyroscope reading, offset by a calibrated amount (<code>error = setpoint_gyrz-(gz_now);</code>). The output of the P controller (<code>p = kp*error</code>) is calculated as a float, then cast to an integer and clamped to the [0-255] valid motor range.
+                                        The error is calculated on each cycle as a difference between a setpoint of rotation rate and the gyroscope reading, offset by a calibrated amount (<code>error = setpoint_gyrz-(gz_now);</code>). The output of the P controller (<code>p = kp*error</code>) is calculated as a float, then cast to an integer and clamped to the [0-255] valid motor range. This was later clamped to [100,255] for constant actuation.
                                         <pre>
                                             <code>
     //calculate output
     pid_out += kp*error;
     pid_out += ki*i_error;
     pid_out += kd*d_error;
-    //bound motor output to linear range
+    //bound motor output
     if(pid_out>250){
       pid_out = 250;
     }
-    else if(pid_out<100){
-      pid_out = 100;
+    else if(pid_out<0){
+      pid_out = 0;
     }
                                             </code>
                                         </pre>
@@ -1465,7 +1465,7 @@ delay(sample-(time_now-time_start));//delay for the remaining sample time
                                         </figure><br>
                                     </p>
                                     <p class="mb-5">
-                                        Around <code>kp=3</code>, the robot would spin quickly enough, but oscillate whenever the rotation rate was high enough for the motor ouput to decrease from maximum. I added an integrator term, calculated by adding together errors in successive cycles (<code>i_error += error; pid_out += ki*i_error</code>), which helped the controller reach the setpoint.
+                                        Around <code>kp=3</code>, the robot would spin quickly enough, but oscillate whenever the rotation rate was high enough for the motor output to decrease. I added an integrator term, calculated by adding together errors in successive cycles (<code>i_error += error; pid_out += ki*i_error</code>), which helped the controller reach the setpoint.
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/pi_control_350.png" alt="" />
                                             <figcaption class="figure-caption">Aiming for 350 deg/s, with a kp of 2.5, and ki of .03, the rotation rate is brought up to the appropriate value from the steady-state offset.</figcaption>
@@ -1494,7 +1494,7 @@ pid_out += kd*d_error;
                                     </p>
                                     <h6>PID: Low-speed</h6>
                                     <p class="mb-5">
-                                        Ramping the speed down, these PID values were decent, but then required more tuning. I couldn't get a reliable rotation that didn't drift wildly below about 250 deg/s. This is still not slow enough for a good scan, and the fact that the wheels weren't consistently inconsistent meant that my simple calibration factor from previous labs was not enough to overcome their differences moment-to-moment.
+                                        Ramping the speed down, these PID values were decent, but then required more tuning. I couldn't get a reliable rotation below about 250 deg/s that didn't drift wildly. This is still not slow enough for a good scan, and the fact that the wheels weren't consistently inconsistent meant that my simple calibration factor from previous labs was not enough to overcome their differences moment-to-moment.
                                     </p>
                                     <p class="mb-5">
                                         I switched to the pivot method by sending a constant signal (100) to one set of wheels while performing PID control on the other. I was able to get an okay rotation (there were still some oscillations that could be more smooth) at about 100 degrees per second. This is well below what I could do open loop, and could be used for a semi-reliable scan if the movement of the robot is compensated for.
@@ -1504,22 +1504,22 @@ pid_out += kd*d_error;
                                         </figure><br>
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/pid_control_100.png" alt="" />
-                                            <figcaption class="figure-caption">Aiming for 100 deg/s, with a kp of 4 and a kd of 0.5, the plot is smoother but is slow to reach the desired rate.</figcaption>
+                                            <figcaption class="figure-caption">Aiming for 100 deg/s, with a kp of 4 and a kd of 0.5, the plot is smoother but is slow to reach the desired rate. See 2:50 in the Lab 6 Supercut for a few example runs.</figcaption>
                                         </figure><br>
-                                        It makes sense that the pivot method can drive slower, since it effectively adds a large amount of dampening to the system. Since we should be always actuating under this control scheme, that means a roughly constant drag on the system, making it less viable to shake due to differential friction. Video of this result can be found below.
+                                        It makes sense that the pivot method can drive slower. Since we should be always actuating to rotate, that means a roughly constant drag on the system, making it less viable to shake due to differential friction. Video of this result can be found below.
                                     </p>
                                     <p class="mb-5">
-                                        Given my measurements from Lab 3, the distance between the sensor and the ideal pivot point is about 52 mm. Since the robot will change orientation at 2 degrees every 20ms (100 deg/s rotation), this means that the sensor sweeps an arc, translating while rotating. With zero translation, in the center of a cylindrical room with a 4 meter diameter, this 2 degree measurement gives a resolution of about one centimeter on the far wall. Since ranging is probably not the only thing the robot is doing, this spatial resolution will probably be much worse. I'm expecting resolution on the order of 10s of cm in reality.
+                                        Given my measurements from Lab 3, the distance between the sensor and the ideal pivot point is about 52 mm. Since the robot will change orientation at 2 degrees every 20ms (100 deg/s rotation), this means that the sensor sweeps an arc, translating while rotating. With zero translation, in the center of a cylindrical room with a 4 meter diameter, this 2 degree measurement gives a resolution of about seven centimeters on the far wall (arc length). Since ranging is probably not the only thing the robot is doing, this spatial resolution will be much worse. I'm expecting resolution on the order of 10s of cm.
                                     </p>
                                     <p class="mb-5">
                                         Including the translation of the sensor during a pivot should be a simple matter in software, since I would have to account for a translation from the sensor position into the robot frame either way.
                                     </p>
                                     <h6>Virtual Robot: Noise and offset</h6>
                                     <p class="mb-5">
-                                        After initializing the robot simulation, I set up a plotting loop with a period of 0.3 seconds. Driving around for a while with the keyboard shows how much the odometry starts to drift from ground truth. In addition to the translation error, which can be accounted for relatively easily at the start, the odometry will show a spreading set of dots for position over a long time when the robot is stationary. Increasing the frequency of plotting, while more accurate along a straightaway, drifts faster as the noise characteristics take over. There seems to be a bias in the noise along one axis, but I can't be sure.
+                                        After initializing the robot simulation, I set up a plotting loop with a period of 0.3 seconds. The odometry starts with a constant offset, and begins to drift from ground truth rapidly. When the robot is stationary, the odometry shows a region of positions due to this noise. Increasing the frequency of plotting, while more accurate along a straightaway, still drifts quickly when stationary. There seems to be a bias in the noise along one axis, but I can't be sure.
                                     </p>
                                     <p class="mb-5">
-                                        Driving faster spread the plotted points on both graphs, but didn't seem to make the odometry inherently better or worse. I did notice that due to the odometry inaccuracies, the direction that the robot entered a point, if stopped there for enough time, was often not the trajectory once moving again. This leads to greater differences in the shape of the ground truth and odometry plots.
+                                        Driving faster spreads the plotted points on both graphs, but didn't seem to make the odometry inherently better or worse. I did notice that due to the odometry inaccuracies, the direction that the robot entered a point, if stopped there for enough time, was often not the trajectory once moving again. This leads to greater differences in the shape of the ground truth and odometry plots.
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab6/long_wait_corner_crop.png" alt="" />
                                             <figcaption class="figure-caption">By waiting at points and then moving forward again, the ground truth (green) will hold the same trajectory while the odometry (red) heads in another direction from the pivot.</figcaption>
