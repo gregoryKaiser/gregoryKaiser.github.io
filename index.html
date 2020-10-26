@@ -132,9 +132,9 @@
                             <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
                             </div>
-                            <img class="img-fluid" src="assets/img/portfolio/cabin.png" alt="" />
+                            <img class="img-fluid" src="assets/img/photos/lab7/sanity_check_5.png" alt="" />
                         </div>
-                        <h5 class="text-center">Lab 7: Odometry</h5>
+                        <h5 class="text-center">Lab 7: Mapping and Bayes Filter Prep</h5>
                     </div>
                     <!-- Portfolio Item 8-->
                     <div class="col-md-6 col-lg-4 mb-5">
@@ -1554,7 +1554,7 @@ pid_out += kd*d_error;
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
                                     <!-- Portfolio Modal - Title-->
-                                    <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal7Label">LAB 7: Odometry</h2>
+                                    <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal7Label">LAB 7: Mapping and Bayes Filter Prep</h2>
                                     <!-- Icon Divider-->
                                     <div class="divider-custom">
                                         <div class="divider-custom-line"></div>
@@ -1562,9 +1562,238 @@ pid_out += kd*d_error;
                                         <div class="divider-custom-line"></div>
                                     </div>
                                     <!-- Portfolio Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/portfolio/submarine.png" alt="" />
+                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/lab7/map_combo.png" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <p class="mb-5"><a href="https://cei-lab.github.io/ECE4960/Lab7.html">Lab 7</a></p>
+                                    <h5>Lab 7 Goals</h5>
+                                    <p class="mb-5">
+                                        In <a href="https://cei-lab.github.io/ECE4960/Lab7.html">Lab 7</a>, I prepared for Lab 8 by writing pseudocode for the upcoming Bayes filter. I also created a map for <i>Hot Wheels of Inquiry</i> using its time-of-flight (ToF) sensor and the PID-controlled rotation from Lab 6.
+                                    </p>
+                                    <h5>Lab 7 Report</h5>
+                                    <h6>Part A: Grid Localization Pseudocode</h6>
+                                    <p class="mb-5">
+                                        By filling in the skeleton code in the Lab 7 jupyter notebook in the VM, I tried to put my understanding of the Bayes filter into practice. Since the detailed description of the constructs of a Bayes filter are well laid out on the <a href="https://cei-lab.github.io/ECE4960/Lab7.html">Lab 7 webpage</a>, I'll keep the high-level decription to this: A discretized version of the world is created in a 3-dimensional space representing the x and y coordinates of the robot, along with a 3rd angular-orientation direction. Broken into chunks of (0.2m x 0.2m x 20 degrees), on a 4mx4m floor, between -180 and 180 degrees, the full grid is 7,200 elements. Stored at each of these locations is a probability of the robot existing at that location. This probability is localized using sensing, and spreads out while taking uncertain actions. Simulating sensor and motion noise as uncertain actions allow more accurate long-term localization.
+                                    </p>
+                                    <p class="mb-5">To this end, each function was attempted below:</p>
+                                    <h7><b>Function 1: <code>compute_control(cur_pose,prev_pose)</code></b></h7>
+                                    <p class="mb-5">
+                                        This function calculates the action that would take the robot from <code>prev_pose</code> to <code>cure_pose</code>.
+                                        <pre>
+                                            <code>
+#compute the angle required before translation, drot1
+dx = cur_pose[0]-prev_pose[0] #x'-x
+dy = cure_pose[1]-prev_pose[1] #y'-y
+drot_abs = atan2(dy,dx) #absolute angle of current pos from previous
+delta_rot_1 = drot_abs - prev_pose[2] #subtract current rotation for amount now required
+
+#compute distance for delta trans, euclidean
+delta_trans = sqrt(((dx*dx)+(dy*dy)))
+
+#compute final necessary rotation
+#as difference between each absolute rotation, 
+#minus the rotation already traversed during step 1
+delta_rot_2 = cur_pose[2]-prev_pose[2]-delta_rot_1
+
+return delta_rot_1, delta_trans, delta_rot_2
+                                            </code>
+                                        </pre>
+                                        This is purely a geometric transformation using calculations from lecture material.
+                                    </p>
+                                    <h7><b>Function 2: <code>odom_motion_model(cur_pose,prev_pose,u)</code></b></h7>
+                                    <p class="mb-5">
+                                        This function simulates Gaussian noise on each of the three actions that are meant to take the robot from <code>prev_pose</code> to <code>cur_pose</code>. That is, if the action <code>u</code> is taken, a probability is generated to represent how likely it is that that action will result in the intended action. 
+                                        <pre>
+                                            <code>
+#first calculate the motion between current and previous
+drot1, dtrans, drot2 = compute_control(cur_pose, prev_pose)
+#then calculate likelihood that the command given causes the correct outcome
+#For the first rotation, samples a gaussian centered at zero at the position difference
+#simulating a sensor with lower likelihood that the sensors/command are mismatched,
+#but also with prob<1 that they match perfectly.
+prot1 = gaussian(u[0]-drot1,0,odom_rot_sigma)
+#for the translation
+ptrans = gaussian(u[1]-dtrans,0,odom_trans_sigma)
+#for the second rotation
+prot2 = gaussian(u[2]-drot2,0,odom_rot_sigma)
+#combine probabilities
+prob = prot1*ptrans*prot2
+return prob
+                                            </code>
+                                        </pre>
+                                        Since there are three segments to each action <code>u</code>, three gaussians are sampled and multiplied together.
+                                    </p>
+                                    <h7><b>Function 3: <code>sensor_model(obs)</code></b></h7>
+                                    <p class="mb-5">
+                                        Gaussian noise can be simulated on each of 18 distance observations from a single grid location. Comparing the sensor data to the "true" value (accessed through <code>loc.obs_views</code>, a set of 18 ray-casted measures from the map) on a gaussian distribution gives a likelihood that the measurement is accurate. That is, there is a high likelihood that the measure is the true value, but it is <1. 
+                                        <pre>
+                                            <code>
+#use gaussian to simulate sensor noise on each measurement
+for i in range(0,loc.OBS_PER_CELL):
+    #measure a gaussian based on the difference of the "true value" and measured value
+    #with a standard deviation of the sensor, for each of the 18 measurements
+    prob_array[i] = gaussian(loc.obs_views[i]-obs[i],0,sensor_sigma)
+return prob_array
+                                            </code>
+                                        </pre>
+                                        Storing the probabilites in an array allows each measure to have its own associated likelihood.
+                                    </p>
+                                    <h7><b>Function 4: <code>predication_step(cur_odom,prev_odom)</code></b></h7>
+                                    <p class="mb-5">
+                                         Following lecture, the prediction step goes through all possible locations the robot <i>was</i> in, and calculates a belief that a given action led to the location the robot <i>is</i> in. This is calculated for all possible current locations. Therefore the for loops iterate over 51 million times in this implementation. Something tells me that there is a more efficient way of calculating both the prediction step and update step, but I can't think of a way to do this since the entire <code>loc.bel_bar</code> grid must be updated before <code>loc.bel</code> can be calculated. The action taken is calculated using the odometry readings, and the likelihood that that action has taken the robot from an arbitrary start point to an arbitrary end point must be calculated one-by-one. 
+                                        <pre>
+                                            <code>
+#calculate the action taken
+(drot1,dtrans,drot2) = compute_control(cur_odom, prev_odom)
+#store
+utaken = (drot1,dtrans,drot2)
+#loop through ALL beliefs at EVERY POSITION
+for xpos in range(0,MAX_CELLS_X):
+    x = xpos-10 #shift into coordinate center
+    for ypos in range(0,MAX_CELLS_Y):
+        y = ypos-10 #shift into coordinate center
+        for apos in range(0,MAX_CELLS_A):
+            a = apos-9 #shift tinto coordinate center
+            #so loc.bel and loc.bel_bar should be accessed correctly at (x,y,a)
+            
+            #sum over all potential previous positions ("grab every old cup")
+            for xposprev in range(0,MAX_CELLS_X):
+                xp = xposprev-10 #shift into coordinate center
+                for yposprev in range(0,MAX_CELLS_Y):
+                    yp = yposprev-10 #shift into coordinate center
+                    for aposprev in range(0,MAX_CELLS_A):
+                        ap = aposprev-9 #shift tinto coordinate center
+                            #extract probability of getting here from where you were, given action
+                            #and multiple by prior belief of being where you were ("distribute beans into every new cup")
+                            loc.bel_bar[(x,y,a)] += odom_motion_model((x,y,a), (xp,yp,ap), utaken)*loc.bel[(xp,yp,ap)]
+                                            </code>
+                                        </pre>
+                                        According to the above, the probability that the action took the robot from the previous position to the current position is updated over and over. This differs from the in class bean example, where each previous position is distributed among all possible current positions, before moving to the next potential previous position. Of course, in the actual implementation, any sufficiently small probability in the grid can be ignored (skipping calculation time), provided the probabilities are renormalized in the end (such that they sum to one).
+                                    </p>
+                                    <h7><b>Function 5: <code>update_step()</code></b></h7>
+                                    <p class="mb-5">
+                                         In the update step, a similar iteration through the grid is performed, but this time only once. Assuming that <code>loc.obs_range_data</code> has been updated with a sensing loop, <code>sensor_model</code> generates the probability that those observations match the cell from which they were taken. The probability array is multiplied together to give the likelihood that the sensor data is accurate. This is used to update the belief that the robot is in the current position.
+                                        <pre>
+                                            <code>
+#assuming the prediction step is complete, loop over all positions again
+for xpos in range(0,MAX_CELLS_X):
+x = xpos-10 #shift into coordinate center
+for ypos in range(0,MAX_CELLS_Y):
+    y = ypos-10 #shift into coordinate center
+    for apos in range(0,MAX_CELLS_A):
+        a = apos-9 #shift tinto coordinate center
+        #so loc.bel and loc.bel_bar should be accessed correctly at (x,y,a)
+        #multiply observation data probabilities for total probability reduction
+        prob_sense = 1 #start with prob 1
+        probs = sensor_model(loc.obs_range_data) #calc prob of each measure
+        for obsi in range(0,loc.OBS_PER_CELL):
+            prob_sense *= probs[obsi] #accumulate measure likelihood
+        #update bel(pos)
+        loc.bel[(x,y,a)] = prob_sense*loc.bel_bar[(x,y,a)] #Note: normalization factor?
+                                            </code>
+                                        </pre>
+                                        In other words, if the sensor data is in strong agreement with the "truth" distances - a proxy for the map itself - our belief that the current position is the robot's location increases. If the sensor data is strongly mismatched with a grid cell's "truth", then the probability that the robot is there gets much lower.
+                                    </p>
+                                    <p class="mb-5">
+                                        I know this isn't exactly pseudocode, but I wanted to try accessing the right data fields. For example, is there a 3d location for each  <code>loc.obs_range_data</code> array? If so, I need to access the ray-casted data differently. Hopefully it is still clear what my intent is with respect to each step of the Bayes filter and data noise at each measurement/action.
+                                    </p>
+                                    <h6>Part B: Mapping From Known Locations</h6>
+                                    <h7><b>Room Prep</b></h7>
+                                    <p class="mb-5">
+                                        Mapping my room required that my laundry be safely hidden in the closet and my floor be somewhat clutter-free. I attempted to block gaps in objects at the height of the ToF sensor using cardboard panels, and I simplified the geometry of my room using more cardboard boxes taped into blocky shapes. I defined a corner near my door as the origin of the world frame. A cube in the middle and a peninsula box break up the environment to allow easier localization later. The locations of these objects are taped so that the room can be reconstructed later.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/real_cube.jpg" alt="" />
+                                            <figcaption class="figure-caption">A view of the cube object, looking into the x direction, and a confined sector of my map.</figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/real_penin.jpg" alt="" />
+                                            <figcaption class="figure-caption">A view of the peninsula object, looking into the longer corridor of the map along the y direction.</figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/manual_map.jpg" alt="" />
+                                            <figcaption class="figure-caption">The hand-measured (using a ruler) map of the room after the addition of the peninsula (after the sanity check below). The measures do not perfectly align, if all angles are assumed to be 90 degrees. The discrepancy, however, is small.</figcaption>
+                                        </figure><br>
+                                    </p>
+                                    <h7><b>Sanity Check and Polar Plot</b></h7>
+                                    <p class="mb-5">
+                                        After some more bluetooth debugging, I was able to get <i>Hot Wheels</i> to spin in a PID-controlled loop while sampling with the ToF sensor and transmitting the data over bluetooth. Most of the code is identical to previous labs, but the loop is now written to halt after the gyroscope senses that a full 360-degree rotation has completed (as opposed to the hard-coded sample number from the PID lab). A small packet of information is sent repeatedly with the gyroscope's estimated angle along with the ToF sensor's most recent reading.
+                                    </p>
+                                    <p class="mb-5">
+                                        To get a sense of the data, I chose a point close to the origin and performed the sample/rotation test. <a href="https://matplotlib.org/gallery/pie_and_polar_charts/polar_scatter.html" target="_blank">Plotted</a> in <a href="https://stackoverflow.com/questions/49948000/how-to-connect-coordinates-in-polar-plot-matplotlib/50248635#50248635" target="_blank">polar coordinates</a> in a jupyter notebook, the corner of the room (doorframe) can be clearly identified, as well as the longer-range readings representing the rest of the interior. The sharp drop is likely due to the sudden change from long-distance reading to seeing the closer-range obstacle (cube) which probably throws a ToF sensor error, rather than real data.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/sanity_check_1.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/sanity_check_2.png" alt="" />
+                                            <figcaption class="figure-caption">Two scans from the same position, in polar coordinates, showing features of the door frame in clear right angles, as well as the spot where the rest of the room opens up. Errors are likely thrown while scanning farther and farther along the wall (as predicted in Lab 6). The doorframe is surprisingly caught in great detail between 90 and 180 degrees. </figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/sanity_real_1.jpg" alt="" />
+                                            <figcaption class="figure-caption">The robot in the starting location before testing.</figcaption>
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/sanity_real_2.jpg" alt="" />
+                                            <figcaption class="figure-caption">In reality, the obstacle is a cube. This confined starting location allows high resolution of samples (better to down sample later). The orange square denotes my world-frame origin corner.</figcaption>
+                                        </figure><br>
+                                        The data is relatively consistent, and matches real-world features. Many of the longer-range measures are less consistent and farther apart, which makes sense angularly. It also matches with my observation of the larger standard-deviation in ToF sensor readings as the range increases past a couple of meters.
+                                    </p>
+                                    <h7><b>Transformation to World Frame</b></h7>
+                                    <p class="mb-5">
+                                        Transforming this radial data from an arbitrary position into the world frame requires a simple translation from the sensor position with respect to the robot, and then from the robot to the world based on its orientation. I defined the front-left wheel of the robot as its "origin", since it pivots about that point during sensing. From there, the ToF sensor sits 52mm along the x-axis. Measurements are distances along the y-direction of the robot. 
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/tof_robot.jpg" alt="" />
+                                            <figcaption class="figure-caption">The robot frame and ToF frame superimposed. The sensor is defined such that it only has an x-displacement in the robot frame.</figcaption>
+                                        </figure><br>
+                                    </p>
+                                    <p class="mb-5">
+                                        From the origin, the robot is translated a measured amount along the origin's x and y axis, and is then rotated at some angle which is measured on-board. Trigonometry therefore defines the transformation to get from sensor data -> into the robot frame and then -> into the world frame.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/scan_eg.jpg" alt="" />
+                                            <figcaption class="figure-caption">An example of a potential scan location, mid-rotation. The displacement along x and y are measured by hand prior to the test.</figcaption>
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/transform_matrix.jpg" alt="" />
+                                            <figcaption class="figure-caption">The equation for converting from ToF sensor measurements to the world frame, in matrix form.</figcaption>
+                                        </figure><br>
+                                        Distilled into single lines of code to generate x and y positions in the world frame, the following shows the python version of the conversion:
+                                        <pre>
+                                            <code>
+#convert csv file to world coordinates
+#tof sensor is a constant 52mm offset from "center" of rotation (left wheel pivot point)
+def plot_from_csv(eg_scan, eg_scan_dx, eg_scan_dy):
+    x_world = np.zeros(1)
+    y_world = np.zeros(1)
+    for i in range(0,len(eg_scan['angle'])):
+        theta = -eg_scan['angle'][i]*3.14159/180
+        dist = eg_scan['dist'][i]
+        x_world = np.append(x_world,np.cos(theta)*(-52)-np.sin(theta)*dist+eg_scan_dx)
+        y_world = np.append(y_world,np.sin(theta)*(-52)+np.cos(theta)*dist+eg_scan_dy)
+    return x_world,y_world
+                                            </code>
+                                        </pre>
+                                        This function is fed the x and y displacement of the scan before processing.
+                                    </p>
+                                    <h7><b>Combined Map</b></h7>
+                                    <p class="mb-5">
+                                        First using python in a jupyter notebook, then again in MATLAB, the transformation is carried out for 5 and 6 separate scans, respectively. These are then plotted on top of one another to produce the full map.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/map_jupyter_noblock.png" alt="" />
+                                            <figcaption class="figure-caption">All scans stacked together from my first set of trails. Each color of scatter points is a different test. My first set of scans was able to resolve the cube somewhat. Axes are in millimeters.</figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/map_matlab.png" alt="" />
+                                            <figcaption class="figure-caption">On a second attempt, this time in MATLAB, I ran 6 tests after placing a peninsula block on one end to break some possible symmetry in the map. While the cube was not well-captured this time, the rest of the geometry still lines up. Axes are in millimeters.</figcaption>
+                                        </figure><br>
+                                        While they don't match perfectly, the orientation of the room, and the existence of the cube and peninsula obstacles, can be clearly identified. Defining the map as best I can below, hopefully the robot will have enough information to localize with this-quality-level information.
+                                    </p>
+                                    <h7><b>Line Conversion</b></h7>
+                                    <p class="mb-5">
+                                        Using <code>ginput()</code> in MATLAB, the outline of the map is traced to produce point locations for the map lines. These points were then transferred to the VM and connected together using the provided skeleton code. The map matches roughly my direct measures (see sketch in Room Prep section). The peninsula and cube shape give a good sense of the orientation of the room.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab7/map_lines.png" alt="" />
+                                            <figcaption class="figure-caption">The results of taking text files generated by <code>ginput()</code> in MATLAB, transferring them into the VM, and then linking them together in a set of lines. This map is not perfect at all edges or at all angles, but it matches quite well with my manually-performed mapping.</figcaption>
+                                        </figure><br>
+                                    </p>
+                                    <p class="mb-5">
+                                        
+                                    </p>
+                                    <h5>Lab 7 Video Supercut</h5>
+                                        <div class="embed-responsive embed-responsive-16by9">
+                                            <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/Hm90iJHmhdY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                        </div>
+                                        <p class="mb-5">The usual supercut of a few milestones in this lab.</p>
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
