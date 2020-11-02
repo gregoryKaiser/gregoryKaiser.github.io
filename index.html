@@ -142,9 +142,9 @@
                             <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
                             </div>
-                            <img class="img-fluid" src="assets/img/portfolio/cabin.png" alt="" />
+                            <img class="img-fluid" src="assets/img/photos/lab8/main_page.png" alt="" />
                         </div>
-                        <h5 class="text-center">Lab 8: Mapping</h5>
+                        <h5 class="text-center">Lab 8: Grid Localization with Bayes Filter</h5>
                     </div>
                     <!-- Portfolio Item 9-->
                     <div class="col-md-6 col-lg-4 mb-5">
@@ -1817,7 +1817,7 @@ def plot_from_csv(eg_scan, eg_scan_dx, eg_scan_dy):
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
                                     <!-- Portfolio Modal - Title-->
-                                    <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal8Label">LAB 8: Mapping</h2>
+                                    <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal8Label">LAB 8: Grid Localization and Bayes Filter</h2>
                                     <!-- Icon Divider-->
                                     <div class="divider-custom">
                                         <div class="divider-custom-line"></div>
@@ -1825,9 +1825,287 @@ def plot_from_csv(eg_scan, eg_scan_dx, eg_scan_dy):
                                         <div class="divider-custom-line"></div>
                                     </div>
                                     <!-- Portfolio Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/portfolio/submarine.png" alt="" />
+                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/lab8/main_page.png" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <p class="mb-5"><a href="https://cei-lab.github.io/ECE4960/Lab8.html">Lab 8</a></p>
+                                    <h5>Lab 8 Goals</h5>
+                                    <p class="mb-5">
+                                        For this week, <a href="https://cei-lab.github.io/ECE4960/Lab8.html">Lab 8</a> allowed us to complete the first-pass implementation of the Bayes Filter completed for Lab 7. Using those implementations as a starting template, I incorporated the advice from Vivek, along with the Implementation Tips from this week's instructions, to run the full Bayes filter.
+                                    </p>
+                                    <h5>Lab 8 Report</h5>
+                                    <h6>Fixing Lab 7 Implementation and Cutting Runtime</h6>
+                                    <p class="mb-5">
+                                        While mostly correct, I made several changes to last week's implementation of each function in the jupyter lab notebook. The original code is much easier to understand, but the final implementation avoids the use of interim variables and attempts to run as few computations as possible to keep runtime relatively low. I also made sure to access the variables correctly as fields of either the Localization structure or the Mapper structure stored within it. For higher level descriptions of the function of each step of the Bayes Filter, please see Lab 7: Mapping and Bayes Filter Prep.
+                                    </p>
+                                    <h7><b>Function 1: <code>compute_control(cur_pose,prev_pose)</code></b></h7>
+                                    <p class="mb-5">
+                                        My original version of <code>compute_control</code> failed to normalize angles to the correct range of values. It also assumed that all angles were in degrees. Since the <code>atan2</code> function, as well as most of the trig functions used in python, give output in radians, I had to use either <code>rad2deg()</code> or <code>np.pi/180</code> to convert correctly. <br>
+                                        The corrected pseudocode:
+                                        <pre>
+                                            <code>
+#compute the angle required before translation, drot1
+dx = cur_pose[0]-prev_pose[0] #x'-x in meters
+dy = cur_pose[1]-prev_pose[1] #y'-y in meters
+drot_abs = atan2(dy,dx)*np.pi/180 #absolute angle of current pos from previous
+delta_rot_1 = loc.mapper.normalize_angle(drot_abs - prev_pose[2]) #subtract current rotation for amount now required
+
+#compute distance for delta trans, euclidean
+delta_trans = sqrt(((dx*dx)+(dy*dy)))
+
+#compute final necessary rotation
+#as difference between each absolute rotation, 
+#minus the rotation already traversed during step 1
+delta_rot_2 = loc.mapper.normalize_angle(cur_pose[2]-prev_pose[2]-delta_rot_1)
+
+return delta_rot_1, delta_trans, delta_rot_2
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <p class="mb-5">
+                                        To make this function run faster, I cut many interim variables. The code is harder to read but may run slightly faster. I still precompute <code>dx</code>, <code>dy</code>, and <code>delta_rot_1</code> since they are used to compute the other parts of the motion. <br>
+                                        The final implementation:
+                                        <pre>
+                                            <code>
+#compute the angle required before translation, drot1
+dx = cur_pose[0]-prev_pose[0] #x'-x
+dy = cur_pose[1]-prev_pose[1] #y'-y
+# convert to degrees and normalize, and subtract angle difference
+delta_rot_1 = loc.mapper.normalize_angle(math.rad2deg(math.atan2(dy,dx)) - prev_pose[2])
+#return above, total distance to travel, and normalized final rotation
+return delta_rot_1, math.hypot(dx,dy), loc.mapper.normalize_angle(cur_pose[2]-prev_pose[2]-delta_rot_1)
+                                            </code>
+                                        </pre>
+                                    </p>
+
+                                    <h7><b>Function 2: <code>odom_motion_model(cur_pose,prev_pose,u)</code></b></h7>
+                                    <p class="mb-5">
+                                        My original implementation of <code>odom_motion_model</code> was good, and I double checked that the sensor noise standard deviation parameters were in the correct units (degrees for <code>odom_rot_sigma</code> and meters for <code>odom_trans_sigma</code>, confirmed by the Lab 8 instructions). Since I made sure <code>compute_control</code> returns units of (m, m, deg), the Gaussian distributions are also in those units.<br>
+                                        The initial fixed pseudocode:
+                                        <pre>
+                                            <code>
+#first calculate the motion between current and previous
+drot1, dtrans, drot2 = compute_control(cur_pose, prev_pose)
+#then calculate likelihood that the command given causes the correct outcome
+#For the first rotation, samples a gaussian centered at zero at the position difference
+#simulating a sensor with lower likelihood that the sensors/command are mismatched,
+#but also with prob<1 that they match perfectly.
+prot1 = loc.gaussian(u[0]-drot1,0,loc.odom_rot_sigma)
+#for the translation
+ptrans = loc.gaussian(u[1]-dtrans,0,loc.odom_trans_sigma)
+#for the second rotation
+prot2 = loc.gaussian(u[2]-drot2,0,loc.odom_rot_sigma)
+#combine probabilities
+prob = prot1*ptrans*prot2
+return prob
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <p class="mb-5">
+                                        To make this function run faster, I removed interim variables again. The code is harder to read, but is now condensed significantly. <br>
+                                        The final implementation:
+                                        <pre>
+                                            <code>
+#first calculate the motion between current and previous
+drot1, dtrans, drot2 = compute_control(cur_pose, prev_pose)
+#multiply three gaussians based on noise parameter and the difference between intended and actual motion
+return loc.gaussian(u[0]-drot1,0,loc.odom_rot_sigma)*loc.gaussian(u[1]-dtrans,0,loc.odom_trans_sigma)*loc.gaussian(u[2]-drot2,0,loc.odom_rot_sigma)
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <h7><b>Function 3: <code>sensor_model(obs, pos)</code></b></h7>
+                                    <p class="mb-5">
+                                        My original <code>sensor_model</code> was not accessing the pre calculated observation matrix correctly, so I modified the function to take in an extra parameter which corresponds to the position at which to compute <code>p(z|x)</code>. Using this additional parameter allows a single 18-long array at a given 3D position to be used to calculate the output array. Otherwise, the high level logic is the same.<br>
+                                        The fixed pseudocode:
+                                        <pre>
+                                            <code>
+#use gaussian to simulate sensor noise on each measurement
+for i in range(0,loc.OBS_PER_CELL):
+    #measure a gaussian based on the difference of the "true value" and measured value
+    #with a standard deviation of the sensor, for each of the 18 measurements
+    prob_array[i] = loc.gaussian(loc.mapper.obs_views[(pos[0],pos[1],pos[2],i)]-obs[i],0,loc.sensor_sigma)
+return prob_array
+                                            </code>
+                                        </pre>
+                                        An additional comment was added to the "Args" section:<br>
+                                        <code>pos[(tuple)]: a tuple of the position from which to grab ground truth observation data</code>
+                                    </p>
+                                    <p class="mb-5">
+                                        To make this function run faster, the output array is computed in a single line as a vector instead of using a for loop. The numpy array performes the same computation faster given in this form. <br>
+                                        The final implementation:
+                                        <pre>
+                                            <code>
+#return gaussian sampled based on difference between observed and ground truth data, as an 18-long array
+return loc.gaussian(loc.mapper.obs_views[(pos[0],pos[1],pos[2])]-obs,0,loc.sensor_sigma)
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <h7><b>Function 4: <code>predication_step(cur_odom,prev_odom)</code></b></h7>
+                                    <p class="mb-5">
+                                        While the number of loops in the original <code>prediction_step</code> was correct, I did not need to shift into centered coordinates inside each nested for loop. Since every 3D array is accessed with the same indices, this step is simply unnecessary, and the <code>from_map</code> function allows me to switch to continuous coordinates if I need to. For example, to compute <code>odom_motion_model</code> and <code>compute_control</code>, the pose variables should be given in continuous coordinates representing (meters, meters, degrees) tuples.<br>
+                                        The fixed pseudocode:
+                                        <pre>
+                                            <code>
+#calculate the action taken
+(drot1,dtrans,drot2) = compute_control(cur_odom, prev_odom)
+#store
+utaken = (drot1,dtrans,drot2)
+#loop through ALL beliefs at EVERY POSITION
+for xpos in range(0,MAX_CELLS_X):
+    for ypos in range(0,MAX_CELLS_Y):
+        for apos in range(0,MAX_CELLS_A):
+            #so loc.bel and loc.bel_bar should be accessed correctly at (xpos,ypos,apos)
+            #sum over all potential previous positions ("grab every old cup")
+            for xposprev in range(0,MAX_CELLS_X):
+                for yposprev in range(0,MAX_CELLS_Y):
+                    for aposprev in range(0,MAX_CELLS_A):
+                            #extract probability of getting here from where you were, given action
+                            prob = odom_motion_model(loc.mapper.from_map(xpos,ypos,apos), loc.mapper.from_map(xposprev,yposprev,aposprev), utaken)
+                            #and multiply by prior belief of being where you were ("distribute beans into every new cup")
+                            loc.bel_bar[(xpos,ypos,apos)] += prob*loc.bel[(xposprev,yposprev,aposprev)]
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <p class="mb-5">
+                                        In order to cut down on run time, I flipped the inner and outer loops so that they matched the in-class example, which distributes probability from a single "previous" position among all possible "current" positions before moving on to the next potential "previous" position. This allows me to gate the inner three for loops with a check to see if my belief that I was at a given "previous" position is above .0001, or .01%. If this isn't the case, that entire inner caculation can be skipped. Of all improvements, this had the greatest impact on runtime, reduced from on the order of minutes per outermost (x-coordinate) loop, to only several seconds per entire Bayes filter iteration.<br>
+                                        The final implementation:
+                                        <pre>
+                                            <code>
+#calculate the action taken
+utaken = compute_control(cur_odom, prev_odom)
+#loop through all possible previous positions
+for xposprev in range(0,loc.mapper.MAX_CELLS_X):
+    for yposprev in range(0,loc.mapper.MAX_CELLS_Y):
+        for aposprev in range(0,loc.mapper.MAX_CELLS_A):\
+            #check for low prob belief of having been here
+            if (loc.bel[(xposprev,yposprev,aposprev)]>.0001):
+                #if probability is high enough, compute prior belief using all positions
+                for xpos in range(0,loc.mapper.MAX_CELLS_X):
+                    for ypos in range(0,loc.mapper.MAX_CELLS_Y):
+                        for apos in range(0,loc.mapper.MAX_CELLS_A):
+                            #extract probability of getting here from where you were, given action, times belief
+                            loc.bel_bar[(xpos,ypos,apos)] += odom_motion_model(loc.mapper.from_map(xpos,ypos,apos), loc.mapper.from_map(xposprev,yposprev,aposprev), utaken)*loc.bel[(xposprev,yposprev,aposprev)]
+#normalize since some cells were ignored
+loc.bel_bar = loc.bel_bar/np.sum(loc.bel_bar)
+
+                                            </code>
+                                        </pre>
+                                        Because several previous positions are being skipped, and probability is therefore being thrown away, the belief matrix is renormalized at the end of this step to make sure that <code>bel_bar</code> still sums to one.
+                                    </p>
+                                    <h7><b>Function 5: <code>update_step()</code></b></h7>
+                                    <p class="mb-5">
+                                        Similar to the prediction step, the <code>update_step</code> implementation from Lab 7 did not need to shift into any centered coordinates. I merely needed to send the "current" position to my new <code>sensor_model</code>, which computes the array of probabilities based on sensor data at a single position's observation scan. Vivek mentioned that the probability array was being multiplied improperly, but I believe that I looped through the 18-length array to compute the product of each element collected into a single probability for a given cell, called <code>prob_sense</code>. This matches the Lab 8 instructions for combining assumed-independent sensor measurements.<br>
+                                        The fixed pseudocode:
+                                        <pre>
+                                            <code>
+#assuming the prediction step is complete, loop over all positions again
+for xpos in range(0,MAX_CELLS_X):
+    for ypos in range(0,MAX_CELLS_Y):
+        for apos in range(0,MAX_CELLS_A):
+            #so loc.bel and loc.bel_bar should be accessed correctly at (xpos,ypos,apos)
+            #multiply observation data probabilities for total probability reduction
+            prob_sense = 1 #start with prob 1
+            probs = sensor_model(loc.obs_range_data, (xpos,ypos,apos)) #calc prob of each measure at this position
+            for obsi in range(0,loc.OBS_PER_CELL):
+                prob_sense *= probs[obsi] #accumulate independent measurement probabilities
+            #update bel(pos) with prior belief and measurement probability
+            loc.bel[(x,y,a)] = prob_sense*loc.bel_bar[(x,y,a)]
+#norm
+loc.bel = loc.bel/np.sum(loc.bel)
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <p class="mb-5">
+                                        To make this loop run faster, I used the numpy function <code>np.prod()</code> to compute the combined product of independent probabilities in a single step.  This condensed <code>update_step</code>.<br>
+                                        The final implementation:
+                                        <pre>
+                                            <code>
+#assuming the prediction step is complete, loop over all positions again
+for xpos in range(0,loc.mapper.MAX_CELLS_X):
+    for ypos in range(0,loc.mapper.MAX_CELLS_Y):
+        for apos in range(0,loc.mapper.MAX_CELLS_A):
+            #apply combined probability of each independent measure and multiply by prior belief
+            loc.bel[(xpos,ypos,apos)] = np.prod(sensor_model(loc.obs_range_data,(xpos,ypos,apos)))*loc.bel_bar[(xpos,ypos,apos)] 
+#normalize
+loc.bel = loc.bel/np.sum(loc.bel)
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <h6>Example Truth and Belief Comparison</h6>
+                                    <p class="mb-5">
+                                        Now I can run the full Bayes filter steps through the pre-set trajectory while running an observation cycle, prediction step, and update step in between movements. The belief based on those calculations is then checked for the highest likelihood cell in its 3D expanse, and that position is plotted as a yellow line for the "belief" at every step.
+                                    </p>
+                                    <p class="mb-5">
+                                        I debugged the functions decribed above by looping through just one iteration step. Once each function ran without error, I tried the whole trajectory, which runs in just a few minutes.<br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab8/few_its.png" alt="" />
+                                            <figcaption class="figure-caption">The ground truth (green) and belief (yellow) after a few iterations of the Bayes filter. The belief drifts from ground truth often.</figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab8/few_more_its.png" alt="" />
+                                            <figcaption class="figure-caption">The belief catches back up after a few more iterations.</figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab8/full_run.png" alt="" />
+                                            <figcaption class="figure-caption">One full run of the entire trajectory.</figcaption>
+                                        </figure><br>
+                                    </p>
+                                    <p class="mb-5">
+                                        Running the program multiple times gives similar output, though with some variation as expected.<br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab8/full_run_2.png" alt="" />
+                                            <figcaption class="figure-caption">A second example run of the full trajectory.</figcaption>
+                                        </figure>
+                                        Plotting the belief plot along with the trajectory shows where the filter thinks the robot is, and also gives some sense of where it thinks the robot is headed based on the previous data which accumulates to predict a general trajectory.<br><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab8/few_bel.png" alt="" />
+                                            <figcaption class="figure-caption">The belief distribution plotted in the early iterations of the trajectory. One can clearly see where the filter believes it is as well as the direction of the robot estimated with the incorporated models.</figcaption>
+                                        </figure><br>
+                                    </p>
+                                    <p class="mb-5">
+                                        The unmodified print statements give information about the belief at any moment in time.<br>
+                                        Example verbose output for step 12 during one run:
+                                        <pre>
+                                            <code>
+----------------- 12 -----------------
+
+---------- PREDICTION STATS -----------
+GT index            :  (10, 17, 17)
+Prior Bel index     :  (9, 16, 0) with prob =  0.0584876
+POS ERROR      : (0.206, 0.102, 332.876)
+---------- PREDICTION STATS -----------
+ | Executing Observation Loop at: 30 deg/s
+
+---------- UPDATE STATS -----------
+GT index      :  (10, 17, 17)
+Bel index     :  (11, 17, 16) with prob =  1.0
+Bel_bar prob at index =  0.00382933191975657
+
+GT     : (0.106, 1.402, 162.876)
+Belief   : (0.300, 1.500, 150.000)
+POS ERROR : (-0.194, -0.098, 12.876)
+---------- UPDATE STATS -----------
+                                            </code>
+                                        </pre>
+                                        These print statements were modified to make a table comparing ground truth to believed positions, as well as the confidence at each iteration for an example run of the entire 25-step trajectory.<br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab8/run_data.png" alt="" />
+                                            <figcaption class="figure-caption">Data from a single run of the full trajectory (Truth, Estimate, Error, and Confidence).</figcaption>
+                                        </figure><br> 
+                                    </p>
+                                    <p class="mb-5">
+                                        Compared to the odometry data, this probabilistic model is clearly superior, and leverages accumulated data as an indirect source of information to generate relatively good grid localization.<br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab8/with_odom.png" alt="" />
+                                            <figcaption class="figure-caption">The odometry data is extremely wrong, but the Bayes filter allows us to keep up with the ground truth.</figcaption>
+                                        </figure><br>
+                                    </p>
+
+                                    My intuition is that when the robot is out in the open, the believed position is not very good. In enclosed spaces with obstacles that create a unique set of ground truth measurements, the Bayes filter does a bit better. Error and confidence were not significantly correlated. At the top of the arc in these example trajectories, the filter consistently has trouble, and I'm not entirely sure why, given the fact that there is a good set of walls that should allow decent localization. The only possibility I could think of was that the small change in the y-direction causes the fraction argument to <code>atan2</code> to get very large, maxing out the <code>compute_control</code> angle estimate to +/- 180 degrees. I can't be sure that this is the case. It is clear, however, that there is a consistent offset during the first three steps-or-so of the trajectory between the belief and ground truth. This always ends up converging back to the ground truth, confirming that this Bayes filter is operational.<br><br>
+
+                                    <h5>Lab 8 Video</h5>
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                            <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/odlkgdVtCV0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                        </div>
+                                        <p class="mb-5">This week only required basic proof that the Bayes filter was operating properly.</p>
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
