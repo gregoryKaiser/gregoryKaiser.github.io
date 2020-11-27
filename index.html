@@ -164,7 +164,7 @@
                             </div>
                             <img class="img-fluid" src="assets/img/portfolio/cabin.png" alt="" />
                         </div>
-                        <h5 class="text-center">Lab 10: PID Control</h5>
+                        <h5 class="text-center">Lab 10: Path Planning and Execution</h5>
                     </div>
                     <!-- Portfolio Item 11-->
                     <div class="col-md-6 col-lg-4 mb-5">
@@ -195,7 +195,7 @@
                     <div class="col-lg-4 ml-auto"><p class="lead">
                     <a href = "https://cei-lab.github.io/ECE4960/" style="color:#030ffc">ECE 4960: Fast Robots </a> is a new class in the Electrical and Computer Engineering department at Cornell University taught by Assistant Professor Kirstin Petersen. </p></div>
                     <div class="col-lg-4 mr-auto"><p class="lead">Gregory Kaiser is a graduate student pursuing a M.Eng. in ECE at Cornell University. </p></div>
-                    <div class="col-lg-4 mr-auto"><p class="lead"><i>Hot Wheels of Inquiry</i> is a play on the starship called <i>Hot Needle of Inquiry</i> from Larry Niven's <a href="https://en.wikipedia.org/wiki/The_Ringworld_Engineers" style="color:#030ffc"> <i>Ringworld Engineers</i></a>. The <i>Needle</i> was used to investigate the far-away Ringworld, and had a great many autonomous systems onboard. <i>Hot Wheels of Inquiry</i> will explore my apartment with the same adventurous spirit as the <i>Needle</i>. </p></div>
+                    <div class="col-lg-4 mr-auto"><p class="lead"><i>Hot Wheels of Inquiry</i> is named for the starship called <i>Hot Needle of Inquiry</i> from Larry Niven's <a href="https://en.wikipedia.org/wiki/The_Ringworld_Engineers" style="color:#030ffc"> <i>Ringworld Engineers</i></a>. The <i>Needle</i> was used to investigate the far-away Ringworld, and had a great many autonomous systems onboard. <i>Hot Wheels of Inquiry</i> will explore my apartment with the same adventurous spirit as the <i>Needle</i>. </p></div>
                 </div>
                 <!-- About Section Button-->
                 <!-- <div class="text-center mt-4">
@@ -2516,7 +2516,7 @@ def raw_to_obs(data):
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
                                     <!-- Portfolio Modal - Title-->
-                                    <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal10Label">LAB 10: PID Control</h2>
+                                    <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal10Label">LAB 10: Path Planning and Execution</h2>
                                     <!-- Icon Divider-->
                                     <div class="divider-custom">
                                         <div class="divider-custom-line"></div>
@@ -2526,7 +2526,503 @@ def raw_to_obs(data):
                                     <!-- Portfolio Modal - Image-->
                                     <img class="img-fluid rounded mb-5" src="assets/img/portfolio/submarine.png" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <p class="mb-5"><a href="https://cei-lab.github.io/ECE4960/Schedule.html">Lab 10</a></p>
+                                    <h5>Lab 10 Goals</h5>
+                                    <p class="mb-5"> 
+                                        For <a href="https://cei-lab.github.io/ECE4960/Schedule.html">Lab 10</a>, we are expected to implement some form of path planning between randomly generated start and end points on a discretized form of our map environment. Since I had to move for Thanksgiving, this map is not the same as in previous labs.
+                                    </p>
+                                    <h5>Lab 10 Report</h5>
+                                    <h6>New Environment</h6>
+                                    <h7><b>New Map</b></h7>
+                                    <p class="mb-5">
+                                        Because of the move, I needed to create a new map somewhere in my house. I chose the basement, but I still had to make the new map quite small to stay out of my parents' way. I first built the map, then measured it, and then created the set of start and end points necessary to work with in jupyter.<br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/new_map.jpg" alt="" />
+                                            <figcaption class="figure-caption">
+                                                A view of the new map with a couple of obstacles to break up the symmetry.
+                                            </figcaption>
+                                        </figure><br>
+                                        Below were the points that I used to generate the map:
+                                        <pre>
+                                            <code>
+# Start points for each line segment describing the map
+start_points = np.array([[0,0],
+                        [0,480],
+                        [255,480],
+                        [255,680],
+                        [0,680],
+                        [0,1370],
+                        [335,1370],
+                        [335,2030],
+                        [1343,2030],
+                        [1050,1210],
+                        [1050,0],
+                        [1050,1210],
+                        [0,0],
+                        [1400,0],
+                        [1400,2200],
+                        [0,2200]])/1000 
+
+# End points for each line segment describing the map
+end_points = np.array([[0,480],
+                        [255,480],
+                        [255,680],
+                        [0,680],
+                        [0,1370],
+                        [335,1370],
+                        [335,2030],
+                        [1343,2030],
+                        [1050,1210],
+                        [1050,0],
+                        [0,0],
+                        [830,1210],
+                        [1400,0],
+                        [1400,2200],
+                        [0,2200],
+                        [0,0]])/1000 
+                                            </code>
+                                        </pre>
+                                        The same code from Lab 9 is used to generate the map and pre-cache views, etc.
+                                    </p>
+                                    <h7><b>Robot Tweaks</b></h7>
+                                    <p class="mb-5">
+                                        Since the robot is now on a new surface, it didn't turn as well at all on the dusty concrete floor. After a few trials on cardboard, I decided to put tape on the three non-pivot wheels to lower their friction with the floor. Doing this allowed there to be a sufficient difference between the pivot and other wheels to recreate my one-wheel rotation from previous labs.<br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/robot_tape.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                The new robot with tape on non-pivot wheels.
+                                            </figcaption>
+                                        </figure><br>
+                                    </p>
+                                    <h7><b>Confirmed Localization</b></h7>
+                                    <p class="mb-5">
+                                        At this point I loaded the new map, and performed online localization as in Lab 9 to confirm that the new environment behaved as expected. It worked relatively well, so I moved on to the next step. At this point I had put a number of hours into getting my new environment started, and hoped that it was not time wasted (at the time I was unsure if I would make it to implementing path planning on the real robot at all!).
+                                    </p>
+                                    <h7><b>New map grid</b></h7>
+                                    <p class="mb-5">
+                                        Ahead of the next section, the map was also discretized into a 2d occupancy grid. While the smaller one uses grid spacing of 0.2m, the "larger" map has more open space and uses 0.1m spacings:
+                                        <pre>
+                                            <code>
+grid=[0,1,1,1,1,1,1,
+       0,1,0,0,0,0,1,
+       0,1,0,0,0,0,1,
+       0,1,0,0,0,1,0,
+       1,1,0,0,1,1,0,
+       1,0,0,0,0,1,0,
+       1,0,0,0,0,1,0,
+       1,1,0,0,0,1,0,
+       1,1,0,0,0,1,0,
+       1,0,0,0,0,1,0,
+       1,1,1,1,1,1,0,]
+
+#this grid is discretized with .1m cells
+grid=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,1,1,1,1,1,1,1,1,1,1,1,
+      0,0,0,1,0,0,0,0,0,0,0,0,0,1,
+      0,0,0,1,0,0,0,0,0,0,0,0,1,0,
+      0,0,0,1,0,0,0,0,0,0,0,1,1,0,
+      0,0,0,1,0,0,0,0,0,0,0,1,0,0,
+      0,0,0,1,0,0,0,0,0,0,0,1,0,0,
+      0,0,0,1,0,0,0,0,0,0,0,1,0,0,
+      1,1,1,1,0,0,0,0,0,0,1,0,0,0,
+      1,0,0,0,0,0,0,0,1,1,1,0,0,0,
+      1,0,0,0,0,0,0,0,0,0,1,0,0,0,
+      1,0,0,0,0,0,0,0,0,0,1,0,0,0,
+      1,0,0,0,0,0,0,0,0,0,1,0,0,0,
+      1,0,0,0,0,0,0,0,0,0,1,0,0,0,
+      1,0,0,0,0,0,0,0,0,0,1,0,0,0,
+      1,1,1,0,0,0,0,0,0,0,1,0,0,0,
+      0,0,1,0,0,0,0,0,0,0,1,0,0,0,
+      1,1,1,0,0,0,0,0,0,0,1,0,0,0,
+      1,0,0,0,0,0,0,0,0,0,1,0,0,0,
+      1,0,0,0,0,0,0,0,0,0,1,0,0,0,
+      1,0,0,0,0,0,0,0,0,0,1,0,0,0,
+      1,1,1,1,1,1,1,1,1,1,1,0,0,0,]
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <h6>Simulation</h6>
+                                    <h7><b>Default map grid</b></h7>
+                                    <p class="mb-5">
+                                        Because the robot in the simulator would have trouble navigating the tight spaces on my new map, I loaded the default map (as suggested) to simulate a planned path before attempting it on the real robot. I then created an occupancy grid for the default map. Because my initial attempt to generate a path on the occupancy grid would cause the robot to collide with obstacles, I defined this grid such that the walls were much thicker than they are in real life. This allows me to generate starting and ending positions (and paths) that more accurately reflect the configuration space of the robot.
+                                        <pre>
+                                            <code>
+grid = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
+        1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
+        1,1,1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,1,
+        1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,
+        1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,
+        1,1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,1,1,
+        1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,
+        1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,1,
+        1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,
+        1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
+        1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
+        1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
+        1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,
+        1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,
+        1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
+        1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <h7><b>Randomized start and goal</b></h7>
+                                    <p class="mb-5">
+                                        Using the provided code from the Lab 10 description, a random starting and ending point are generated using this occupancy grid.
+                                        <pre>
+                                            <code>
+# Convert the 1D list into a 1D numpy array
+grid = np.array(grid, dtype=np.uint8)
+
+# Convert the 1D numpy array into an appropriate 2D numpy array
+grid.resize(20,20)
+
+# Instantiate the class PlannerQuery
+pq = PlannerQuery(grid)
+x = pq.generate(plot=True)
+                                            </code>
+                                        </pre>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/rand_path_2.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                An example set of generated starting and ending positions on the occupancy grid, where red is the starting position, and green is the goal position.
+                                            </figcaption>
+                                        </figure><br>
+                                    </p>
+                                    <h7><b>Breadth-First Search</b></h7>
+                                    <p class="mb-5">
+                                        To find a path from the starting to the ending node, I used a Breadth-First Search (BFS) algorithm as a global planner. As explained in class, while this method does use a lot of memory (I was only planning to use this method on my laptop), it does find a shortest path to the goal, if it exists.<br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/bfs_slide_1.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                A snip from slide 19 of Lecture 12: Graph Search with the pseudocode for the BFS algorithm.
+                                            </figcaption>
+                                        </figure><br>
+                                        I referred to a number of online resources to implement my own BFS algorithm:<br>
+                                        <a href="https://www.educative.io/edpresso/how-to-implement-a-breadth-first-search-in-python" target="_blank">Educative.io</a><br>
+                                        <a href="https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/" target="_blank">GeeksForGeeks</a><br>
+                                        <a href="https://jeremykun.com/2013/01/22/depth-and-breadth-first-search/" target="_blank">Jeremy Kun</a><br>
+                                        However, the pseudocode from in class was by far the most helpful to keep my understanding clear, and the documentation for Python's <a href="https://docs.python.org/3/library/queue.html" target="_blank">queue</a> classes was also very helpful. The following is my final implementation:
+                                        <pre>
+                                            <code>
+import queue
+class node:
+    def __init__(self, coords, parent):
+        self.pos = coords #this node's coords in a tuple
+        self.parent = parent #parent node
+
+def BFS(occ_grid, start_loc, goal_loc):
+    visited = []
+    frontier = queue.Queue()
+    cur_loc = node(start_loc, None) #init starting location
+    frontier.put(cur_loc) #init the frontier
+    path = []
+    while(not frontier.empty()): #until frontier is empty
+        cur_loc = frontier.get() #get node from frontier
+        if(cur_loc.pos==goal_loc):#cur_loc.pos==goal_loc): #check for goal
+            #return result through parents nodes
+            result = []
+            while(cur_loc.parent!=None): #all the way back to the start location
+                result.append(cur_loc.pos)
+                cur_loc = cur_loc.parent
+            result.append(cur_loc.pos)
+            result.reverse() #flip for order from start-->finish
+            return result
+        else: #check all possible movements from this node
+            left = node((cur_loc.pos[0],cur_loc.pos[1]+1),cur_loc)
+            right = node((cur_loc.pos[0],cur_loc.pos[1]-1),cur_loc)
+            up = node((cur_loc.pos[0]-1,cur_loc.pos[1]),cur_loc)
+            down = node((cur_loc.pos[0]+1,cur_loc.pos[1]),cur_loc)
+            #if not visited, and unoccupied, add to frontier and visited
+            if(not (left.pos in visited) and occ_grid[left.pos]==0):
+                visited.append(left.pos)
+                frontier.put(left)
+            if(not (right.pos in visited) and occ_grid[right.pos]==0):
+                visited.append(right.pos)
+                frontier.put(right)
+            if(not (up.pos in visited) and occ_grid[up.pos]==0):
+                visited.append(up.pos)
+                frontier.put(up)
+            if(not (down.pos in visited) and occ_grid[down.pos]==0):
+                visited.append(down.pos)
+                frontier.put(down)
+###
+BFS_path = BFS(grid, x[0], x[1])
+print(BFS_path)
+                                            </code>
+                                        </pre>
+                                        The last two lines merely execute the algorithm on the grid, where <code>x[0]</code> and <code>x[1]</code> are the starting and goal locations as tuples, respectively. Note that in order to find the path once the goal node is found, I created a node class that maintained every new node's direct parent. In this way the path can be retraced through the parents of each node starting from the goal/ending location.<br><br>
+                                        Without going into too many of the details, BFS essentially searches in an ever-wider field around the starting node, with a frontier at the border of that region. Provided you have enough space to hold all of these frontier nodes, a shortest path to the goal location can be found (modified a bit by the priority/order with which the next node is visited and added to the frontier). Since this grid is only 20x20, and it is running on my laptop, the isolated search algorithm runs almost instantly.
+                                    </p>
+                                    <p class="mb-5">
+                                        I also created a custom method in the <code>planner_query</code> file which prints my path in blue along with the starting and ending locations as red and green as usual.
+                                        <pre>
+                                            <code>
+def display_custom(self, start, goal, path):
+        output_img = cv2.cvtColor(np.copy(self.grid)*255,cv2.COLOR_GRAY2RGB)
+        for pos in path:
+            output_img[pos] = [0,0,255]
+        output_img[start] = [255,0,0]
+        output_img[goal] = [0,255,0]
+        print("Start cell: ", start)
+        print("Goal cell: ", goal)
+        plt.imshow(output_img)
+        plt.show()
+###after generating a path:
+pq.display_custom(x[0],x[1],BFS_path)
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <p class="mb-5">
+                                        I tried this algorithm on a number of grids along with their starting and ending positions:<br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/BFS_many/path_1.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/BFS_many/path_2.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/BFS_many/path_3.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/BFS_many/path_4.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                A set of example paths found using BFS on the occupancy grid. The global planner also avoids obstacles.
+                                            </figcaption>
+                                        </figure><br>
+                                    </p>
+                                    <h7><b>Convert to path</b></h7>
+                                    <p class="mb-5">
+                                        Now confident in my global planner, I need to convert grid positions to positions on the actual map. I defined the following function to convert between the grid and the map, since the y-axis is reversed on the grid, and since the positions themselves are ordered (y, x), instead of (x, y), as I would rather they be ordered.
+                                        <pre>
+                                            <code>
+#given a map and a grid made from that map
+#converts path list from grid coordinates (x,y) to map coordinates (x,y)
+#assumes that the map and the grid are discretized to the same level
+def plan_to_map_default(the_map, the_grid, path_on_grid):    
+    cells_y = the_map.MAX_CELLS_Y
+    minx = the_map.MIN_X
+    miny = the_map.MIN_Y
+    cell_x = the_map.CELL_SIZE_X
+    cell_y = the_map.CELL_SIZE_Y
+    map_path = []
+    for pos in path_on_grid:
+        mapy = (cells_y-pos[0])*cell_y+miny
+        mapx = pos[1]*cell_x+minx
+        map_path.append((mapx,mapy))
+    return np.around(map_path, 3)
+###
+map_plan = plan_to_map_default(mapper, grid, BFS_path) #stored the path, now in map coordinates
+                                            </code>
+                                        </pre>
+                                        This successfully generated a set of real positions that can be used by the robot, map, and all of the functions from previous labs. Plotting one of these paths on my first occupancy grid for the default map confirmed that the positions were being transformed correctly, but also indicated that the robot would crash if it attempted to execute this path. This is what prompted me to increase the size of all obstacles on the occupancy grid, as was already reported above.<br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/path_1/BFS_path_1.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                The path is generated on the occupancy grid without larger obstacles.
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/path_1/BFS_path_1_pathplot.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                The path is plotted in the plotter. This confirms that the transformation is correct, but also indicates that the obstacles needed to be increased to represent the robot's actual c-space.
+                                            </figcaption>
+                                        </figure><br>
+                                    </p>
+                                    <h7><b>Execute path</b></h7>
+                                    <p class="mb-5">
+                                        In order to execute this planned path, and to localize at each step while executing it (similar to previous simulation-based labs), I used the Bayes-Filter trajectory execution from Lab 8 (and Lab 9 sim) as a template. Instead of looping through a trajectory, however, it loops through my planned path. 
+                                        <pre>
+                                            <code>
+# Reset Plots
+robot.reset()
+loc.plotter.reset_plot()
+# Init Uniform Belief
+loc.init_pose()
+# Get Observation Data by executing a 360 degree rotation motion
+loc.get_observation_data()
+# Run Update Step
+loc.update_step()
+loc.print_update_stats(plot_data=True)
+#assume already at the starting position
+prev_step = map_plan[0]
+for step in map_plan[1:]: #execute each step of the plan
+    print("----moving to "+str(step)+"----")
+    prev_odom = robot.get_pose()
+    prev_gt = robot.get_gt_pose()
+    move_robot(prev_step, step)
+    current_gt = robot.get_gt_pose()
+    current_odom = robot.get_pose()
+    # Prediction Step
+    loc.prediction_step(current_odom, prev_odom)
+    loc.print_prediction_stats(plot_data=False)
+    
+    # Get Observation Data by executing a 360 degree rotation motion
+    loc.get_observation_data()
+    
+    # Update Step    
+    loc.update_step()
+    loc.print_update_stats(plot_data=False)
+    
+    #follows perfect trajectory
+    prev_step = step
+    #tries to use believed state for next movement
+    argmax_bel = get_max(loc.bel)
+    current_belief = loc.mapper.from_map(*argmax_bel[0])
+#     prev_step = (current_belief[0], current_belief[1])
+
+    #plot
+    loc.plotter.plot_point(current_belief[0], current_belief[1], BEL)
+    loc.plotter.plot_point(step[0],step[1],ODOM)#desired location
+    loc.plotter.plot_point(current_gt[0],current_gt[1],GT)#actual location
+                                            </code>
+                                        </pre>
+                                        To actually execute movement, some local planning needs to be done to orient the robot in the correct direction before moving. The function <code>move_robot()</code> is created to execute this local planning. I am deeply indebted to <a href="https://kebradford.github.io/ECE4960/" target="_blank">Katie Bradford</a> for providing guidance on this function (thanks! :D). Because it involves a number of checks and conditionals, I was very confused about how to implement this at first. What I settled on actually takes into account where the robot is oriented to choose the direction of rotation that will bring the robot to the correct heading the fastest. I am certain that this could have been implemented in a more efficient manner, but it works to get the simulated robot to follow the pre-set path.
+                                        <pre>
+                                            <code>
+#moves virtual robot from one location to another
+#checks the odometry of the robot to determine success
+#citation: Katie Bradford was crucial for foothold on implementation :D
+def move_robot(from_pos, to_pos):
+    rot_speed = .5
+    trans_speed = .2
+    lr = to_pos[0]-from_pos[0] #left/right
+    ud = to_pos[1]-from_pos[1] #up/down
+    #print(lr, ud)
+    if lr&lt0: #move left
+        #print("move left")
+        goal_ang = 180
+        if(robot.get_gt_pose()[2]&gt0):#rotate CCW
+            robot.set_vel(0,rot_speed)
+            while(robot.get_gt_pose()[2]&gt0 and robot.get_gt_pose()[2]&ltgoal_ang):
+                pass#until 180 reached
+            robot.set_vel(trans_speed,0)
+            while(round(robot.get_gt_pose()[0],1)&gtto_pos[0]):
+                pass#until goal x position reached
+            robot.set_vel(0,0)
+        else:#rotate CW
+            robot.set_vel(0,-rot_speed)
+            while(robot.get_gt_pose()[2]&lt0 and abs(robot.get_gt_pose()[2])&ltgoal_ang):
+                pass#until 180 reached
+            robot.set_vel(trans_speed,0)
+            while(round(robot.get_gt_pose()[0],1)&gtto_pos[0]):
+                pass#until goal x position reached
+            robot.set_vel(0,0)
+    elif lr&gt0: #move right
+        #print("move right")
+        goal_ang = 0
+        if(robot.get_gt_pose()[2]&gt0):#rotate CW
+            robot.set_vel(0,-rot_speed)
+            while(robot.get_gt_pose()[2]&gt0 and robot.get_gt_pose()[2]&gtgoal_ang):
+                pass#until 0 reached
+            robot.set_vel(trans_speed,0)
+            while(round(robot.get_gt_pose()[0],1)&ltto_pos[0]):
+                pass#until goal x position reached
+            robot.set_vel(0,0)
+        else:#rotate CCW
+            robot.set_vel(0,rot_speed)
+            while(robot.get_gt_pose()[2]&gt0 and abs(robot.get_gt_pose()[2])&gtgoal_ang):
+                pass#until 0 reached
+            robot.set_vel(trans_speed,0)
+            while(round(robot.get_gt_pose()[0],1)&ltto_pos[0]):
+                pass#until goal x position reached
+            robot.set_vel(0,0)
+    elif ud&lt0: #move down
+        #print("move down")
+        goal_ang = -90
+        if(abs(robot.get_gt_pose()[2])&gt90):#rotate CCW
+            robot.set_vel(0,rot_speed)
+            while(abs(robot.get_gt_pose()[2])&gt90):# and abs(robot.get_gt_pose()[2])&gtgoal_ang):
+                pass#until -90 reached
+            robot.set_vel(trans_speed,0)
+            while(round(robot.get_gt_pose()[1],1)&gtto_pos[1]):
+                pass#until goal x position reached
+            robot.set_vel(0,0)
+        else:#rotate CW
+            robot.set_vel(0,-rot_speed)
+            while(abs(robot.get_gt_pose()[2])&lt90):# and abs(robot.get_gt_pose()[2])&gtgoal_ang):
+                pass#until -90 reached
+            robot.set_vel(trans_speed,0)
+            while(round(robot.get_gt_pose()[1],1)&gtto_pos[1]):
+                pass#until goal x position reached
+            robot.set_vel(0,0)
+    elif ud&gt0: #move up
+        #print("move up")
+        goal_ang = 90
+        if(abs(robot.get_gt_pose()[2])&gt90):#rotate CW
+            robot.set_vel(0,-rot_speed)
+            while(abs(robot.get_gt_pose()[2])&gt90):# and abs(robot.get_gt_pose()[2])&gtgoal_ang):
+                pass#until +90 reached
+            robot.set_vel(trans_speed,0)
+            while(round(robot.get_gt_pose()[1],1)&ltto_pos[1]):
+                pass#until goal x position reached
+            robot.set_vel(0,0)
+        else:#rotate CCW
+            robot.set_vel(0,rot_speed)
+            while(abs(robot.get_gt_pose()[2])&lt90):# and abs(robot.get_gt_pose()[2])&gtgoal_ang):
+                pass#until -90 reached
+            robot.set_vel(trans_speed,0)
+            while(round(robot.get_gt_pose()[1],1)&ltto_pos[1]):
+                pass#until goal x position reached
+            robot.set_vel(0,0)
+
+                                            </code>
+                                        </pre>
+                                        For example, if the robot wants to move "down" and is currently rotated to the left-half of the map, it should rotate counter-clockwise to reach the downward position. If it were oriented towards the right, it should rotate clockwise, and similar logic applies to all directions.
+                                    </p>
+                                    <p class="mb-5">
+                                        This successfully allows me to follow a path with the simulated robot using a globally-planned, BFS-generated path.<br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/path_2/BFS_path_2.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                The path is generated on the occupancy grid using BFS.
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/path_2/BFS_path_2_executed.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                The path is executed. Green indicates the ground truth, blue indicates my "desired" position, based on the path, and the yellow indicates the belief at each step after an observation loop.
+                                            </figcaption>
+                                        </figure><br>
+
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/path_3/BFS_path_3.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                The path is generated on the occupancy grid using BFS.
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/path_3/BFS_path_3_executed.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                The path is executed. Green indicates the ground truth, blue indicates my "desired" position, based on the path, and the yellow indicates the belief at each step after an observation loop.
+                                            </figcaption>
+                                        </figure><br>
+
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/path_4/BFS_path_4.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                The path is generated on the occupancy grid using BFS.
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/path_4/BFS_path_4_executed.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                The path is executed. Green indicates the ground truth, blue indicates my "desired" position, based on the path, and the yellow indicates the belief at each step after an observation loop. Note the much worse Bayes Filter results on this run of the executed path.
+                                            </figcaption>
+                                        </figure><br>
+                                        I did try a couple times to allow the robot to use the believed position to determine its next move, but the Bayes Filter was not accurate enough for the robot to execute the path in the way that I desired. A more sophisticated algorithm is necessary to put the robot back on the path towards the next goal cell, even with noisy understanding of its position.
+                                    </p>
+                                    <h6>Real Robot</h6>
+                                    <p class="mb-5">
+                                        [pending]
+                                    </p>
+                                    <h6>Areas of improvement, given more time</h6>
+                                    <p class="mb-5">
+                                        With respect to the simulator, I believe a more concerted effort could be made to get it to locally plan more realistically. That is, based on only the returned belief position from the Bayes Filter, it should be able to find out where to go next. Something I noticed during Lab 8 is that short movements caused the Bayes Filter error to increase. A next step with the simulator could be to only run the Bayes filter every few steps, and its performance might increase. However, this leaves the robot with only its odometry data in between observation steps (which cannot be trusted).<br>
+                                        [comments on real robot improvements]
+                                    </p>
+                                    <h5>Lab 10 Video</h5>
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                            <iframe class="embed-responsive-item" src="" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                        </div>
+                                        <p class="mb-5">Description</p>
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
