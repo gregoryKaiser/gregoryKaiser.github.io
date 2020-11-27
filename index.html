@@ -2965,7 +2965,8 @@ def move_robot(from_pos, to_pos):
 
                                             </code>
                                         </pre>
-                                        For example, if the robot wants to move "down" and is currently rotated to the left-half of the map, it should rotate counter-clockwise to reach the downward position. If it were oriented towards the right, it should rotate clockwise, and similar logic applies to all directions.
+                                        For example, if the robot wants to move "down" and is currently rotated to the left-half of the map, it should rotate counter-clockwise to reach the downward position. If it were oriented towards the right, it should rotate clockwise, and similar logic applies to all directions.<br><br>
+                                        I printed the first element in the BFS plan (starting location) in the map coordinates, and changed the <code>playground.world</code> file where it calls <code>turtlebot()</code> to start the robot in the correct initial position. The simulator is restarted to load the robot correctly.
                                     </p>
                                     <p class="mb-5">
                                         This successfully allows me to follow a path with the simulated robot using a globally-planned, BFS-generated path.<br>
