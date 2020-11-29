@@ -2705,7 +2705,7 @@ x = pq.generate(plot=True)
                                         <a href="https://www.educative.io/edpresso/how-to-implement-a-breadth-first-search-in-python" target="_blank">Educative.io</a><br>
                                         <a href="https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/" target="_blank">GeeksForGeeks</a><br>
                                         <a href="https://jeremykun.com/2013/01/22/depth-and-breadth-first-search/" target="_blank">Jeremy Kun</a><br>
-                                        However, the pseudocode from in class was by far the most helpful to keep my understanding clear, and the documentation for Python's <a href="https://docs.python.org/3/library/queue.html" target="_blank">queue</a> classes was also very helpful. The following is my final implementation:
+                                        However, the pseudocode from class was by far the most helpful to keep my wits about me, and the documentation for Python's <a href="https://docs.python.org/3/library/queue.html" target="_blank">queue</a> classes was also very helpful. The following is my final implementation:
                                         <pre>
                                             <code>
 import queue
@@ -2755,7 +2755,7 @@ print(BFS_path)
                                             </code>
                                         </pre>
                                         The last two lines merely execute the algorithm on the grid, where <code>x[0]</code> and <code>x[1]</code> are the starting and goal locations as tuples, respectively. Note that in order to find the path once the goal node is found, I created a node class that maintained every new node's direct parent. In this way the path can be retraced through the parents of each node starting from the goal/ending location.<br><br>
-                                        Without going into too many of the details, BFS essentially searches in an ever-wider field around the starting node, with a frontier at the border of that region. Provided you have enough space to hold all of these frontier nodes, a shortest path to the goal location can be found (modified a bit by the priority/order with which the next node is visited and added to the frontier). Since this grid is only 20x20, and it is running on my laptop, the isolated search algorithm runs almost instantly.
+                                        Without going into too many of the details, BFS essentially searches in an ever-wider field around the starting node, with a frontier at the border of that region. Provided you have enough space to hold all of these frontier nodes, a shortest path to the goal location can be found (the shape is modified by the priority/order with which the next node is visited and added to the frontier). Since this grid is only 20x20, and it is running on my laptop, the isolated search algorithm runs very quickly (<1s).
                                     </p>
                                     <p class="mb-5">
                                         I also created a custom method in the <code>planner_query</code> file which prints my path in blue along with the starting and ending locations as red and green as usual.
@@ -3011,19 +3011,270 @@ def move_robot(from_pos, to_pos):
                                         I did try a couple times to allow the robot to use the believed position to determine its next move, but the Bayes Filter was not accurate enough for the robot to execute the path in the way that I desired. A more sophisticated algorithm is necessary to put the robot back on the path towards the next goal cell, even with noisy understanding of its position.
                                     </p>
                                     <h6>Real Robot</h6>
+                                    <h7><b>Goals, considerations, and chosen methodology</b></h7>
                                     <p class="mb-5">
-                                        [pending]
+                                        Once the simulator was executing the global plan, I thought about how to best implement the plan on the real robot. The code used to run the simulation wouldn't work well, I figured, because it required many requests for odometry data. While the request for data is already set up from a previous lab, I knew that the way I was maintaining local odometry drifts quadratically, and cannot be trusted as a pose whatsoever. Using the Bayes Filter is meant to solve this issue by maintaining a most probable position. However, using the believed position in the simulator to determine the next movement was unsuccessful (and sank a lot of time while attempting). To cut down on bluetooth transmission time, I decided to convert my BFS global plan into a set of actions to send to the robot in succession for execution, and then localize at the end in order to calculate an error (localization has been fairly precise for me most of the time). 
+                                    </p>
+                                    <h7><b>Convert path to set of movements</b></h7>
+                                    <p class="mb-5">
+                                        While I did generate a 0.1m-discretized grid for my new map (see Lab title image), it proved too small for the method that I used to move the robot from square to square (see <a href="#Robot commands">Robot commands</a> below). Using the 0.2m grid was definitely more confined and less interesting for the BFS path generator, but it also increased the size of obstacles in a way that resembled my modifications to the default map (closer to c-space of robot). 
+                                        <pre>
+                                            <code>
+grid=[0,1,1,1,1,1,1,
+      0,1,0,0,0,0,1,
+      0,1,0,0,0,0,1,
+      0,1,0,0,0,1,0,
+      1,1,0,0,1,1,0,
+      1,0,0,0,0,1,0,
+      1,0,0,0,0,1,0,
+      1,1,0,0,0,1,0,
+      1,1,0,0,0,1,0,
+      1,0,0,0,0,1,0,
+      1,1,1,1,1,1,0,]
+grid = np.array(grid, dtype=np.uint8)
+grid.resize(11,7)
+                                            </code>
+                                        </pre>
+                                        After generating a random start/end, finding a path, and converting it to map coordinates, as before, I transformed it into a set of 90-degree counter-clockwise rotations, and linear 1 block-length movements. Each command is a set of rotations followed by a 1 (to advance to the next block). Keeping track of the direction entering the block allows a quick calculation of the number of rotations required.
+                                        <pre>
+                                            <code>
+#convert the plan to a series of 90 degree, counter clockwise rotations, and forward linear moves
+#so the output should be array of [rotations, 1], where rotations is the number of rotations to execute before moving one block
+def plan_to_cmd(map_plan):
+    prev_cmd = map_plan[0]
+    prev_dir = 0 #the direction that entered the last cell is the current orientation of the robot
+    next_dir = 0 #the next direction to get to
+    rotations = 0
+    output = []
+    for cmd in map_plan[1:]:
+        #which direction to go next
+        left = prev_cmd[0]&gtcmd[0]
+        right = prev_cmd[0]&ltcmd[0]
+        up = prev_cmd[1]&ltcmd[1]
+        down = prev_cmd[1]&gtcmd[1]
+        #coded to -&gt0, ^1, &lt-2, v3
+        if(left):
+            next_dir = 2
+        if(right):
+            next_dir = 0
+        if(up):
+            next_dir = 1
+        if(down):
+            next_dir = 3
+        #diference is number of rotations
+        rotations = (next_dir-prev_dir)%4
+        prev_cmd = cmd
+        prev_dir = next_dir
+        output.append((rotations,1))
+    return output
+            
+                                            </code>
+                                        </pre>
+                                        To send these commands to the robot, two new command types are added: <code>ROTATE_TO</code> and <code>MOVE_TO</code>. After connecting to the robot in the usual manner (see previous labs), the following lines are used to send these commands, where <code>hwoi</code> is a container for a robot reference.<br>
+                                        <code>await hwoi.sendCommand(Commands.ROTATE_TO)</code><br>
+                                        <code>await hwoi.sendCommand(Commands.MOVE_TO)</code>
+                                    </p>
+                                    <h7><a id="Robot commands"><b>Robot commands: moving and rotating</b></a></h7>
+                                    <p class="mb-5">
+                                        To capture these commands and execute the request, the Arduino sketch is modified to hold two more potential <code>ROBOT_STATE</code> states in the state machine. See Lab 9 for details of the state machine, which always checks for bluetooth messages before executing the task associated with its current state. One state is <code>ROTATING</code>, triggered by the <code>ROTATE_TO</code> command, which executes a 90 degree CCW rotation using PID control. It recycles code from the observation loop state from the previous lab, but halts earlier. The variable <code>temp_yaw</code> maintains the angle of the robot using the gyroscope inside <code>read_data()</code>.
+                                        <pre>
+                                            <code>
+case ROTATE_TO: //rotate to a desired angle
+          ROBOT_STATE = ROTATING;
+          angle_start = yaw_raw; //starting angle
+          temp_yaw = 0; //to control 360 degree rotation
+          rotate_to = 90;
+          Serial.println("rotation requested");
+          break;
+//...
+//after bluetooth message check
+//...
+if(ROBOT_STATE==ROTATING){//continue with pid loop measures
+        time_start = millis();//should this move to the top of loop()
+       if(temp_yaw&ltrotate_to){
+        pid_out = 0;
+        //read data
+        read_data();
+        //calculate error
+        error = setpoint_gyrz-(gz_now);
+        //update error history
+        for(int i=0;i&ltHIST_SIZE-1;i++){//update
+            error_hist[i] = error_hist[i+1];
+        }
+        error_hist[HIST_SIZE-1] = error;
+        d_error = error_hist[HIST_SIZE-1]-error_hist[HIST_SIZE-4]; //update derivative
+        i_error += error;//update integral
+        //calculate output
+        pid_out += kp*error;
+        pid_out += ki*i_error;
+        pid_out += kd*d_error;
+        //bound motor output to linear range
+        if(pid_out>250){
+          pid_out = 250;
+        }
+        else if(pid_out<100){
+          pid_out = 100;
+        }
+        //cast output
+        motor_pid_out_r = (uint32_t) pid_out;
+        motor_pid_out_l = 100;//(uint32_t) pid_out*1.1;//*CAL_FACTOR
+        //update motor speed
+        myMotorDriver.setDrive(0,1,motor_pid_out_l);//drive one side - LEFT
+        myMotorDriver.setDrive(1,1,motor_pid_out_r);//drive one side - RIGHT
+        time_now = millis();
+        delay(sample-(time_now-time_start));//delay for the remaining sample time
+       }
+       else{
+        //stop
+        myMotorDriver.setDrive(0,1,0);//drive one side - LEFT
+        myMotorDriver.setDrive(1,1,0);//drive one side - RIGHT
+        rotate_test = 0;
+        //move to listening
+        ROBOT_STATE = LISTEN;
+       }
+    }
+                                            </code>
+                                        </pre>
+                                        I also noticed that because the PID loop operates better once a "history" is built up for the differential term to act upon, running this command once after connecting to/restarting the robot helped all successive rotations move more smoothly.
+                                    </p>
+                                    <p class="mb-5">
+                                        The other state is <code>MOVING</code>, triggered by the <code>MOVE_TO</code> command. Using the accelerometer to measure my position is very noisy, so I considered that my map is entirely closed, and has a wall within range of the ToF sensor at all times. By taking a measure before the movement, I can more accurately tell when I have moved the appropriate amount. I had mixed accuracy results using the 0.1m movements (highly variable actual movement), whereas the 0.2m movements were fairly consistent.
+                                        <pre>
+                                            <code>
+case MOVE_TO: //move forward
+          ROBOT_STATE = MOVING;
+          Serial.println("move requested");
+          read_ToF();
+          temp_dist_tof = dist_tof;
+          break;
+//...
+//after bluetooth message check
+//...
+if(ROBOT_STATE==MOVING){
+      //since tof readings are unsigned 32-bit integers, check the larger first (prevent overflow)
+      if(dist_tof&gt0 && dist_tof&lttemp_dist_tof){
+        diff = temp_dist_tof-dist_tof;
+      }
+      else if(dist_tof&gt0){
+        diff = dist_tof-temp_dist_tof;
+      }
+       if(dist_tof>0 && diff<130){//130 causes a more accurate drift into approx. 200mm
+        time_start = millis();
+        //read data
+        read_ToF();
+        //cur_xpos = cur_xpos+abs(temp_dist_tof-dist_tof)*cos(yaw_raw*radperdeg)/1000;
+        //cur_ypos = cur_ypos+abs(temp_dist_tof-dist_tof)*sin(yaw_raw*radperdeg)/1000;
+        myMotorDriver.setDrive(0,0,move_speed_l);//drive one side - LEFT
+        myMotorDriver.setDrive(1,1,move_speed_r);//drive one side - RIGHT
+        //delay for sample rate time, depending on how long it took to get here
+        time_now = millis();
+        delay(sample-(time_now-time_start));//delay for the remaining sample time
+       }
+       else{ 
+        //hard stop
+        myMotorDriver.setDrive(0,1,move_speed_l);//drive one side - LEFT
+        myMotorDriver.setDrive(1,0,move_speed_r);//drive one side - RIGHT
+        delay(70);
+        myMotorDriver.setDrive(0,1,0);//drive one side - LEFT
+        myMotorDriver.setDrive(1,1,0);//drive one side - RIGHT
+        Serial.println("moving over");
+        //move to listening
+        ROBOT_STATE = LISTEN;
+       }
+                                            </code>
+                                        </pre>
+                                        I also tried to use this more accurate motion to update odometry (<code>cur_xpos</code> and <code>cur_ypos</code>) using the current believed angle, but never got to measure how accurate it actually was.
+                                    </p>
+                                    <h7><b>Execute set of movements in succession</b></h7>
+                                    <p class="mb-5">
+                                        To send the commands is now an easy matter, and merely requires a short wait after sending each one.
+                                        <pre>
+                                            <code>
+#perform command send
+cmd_plan = plan_to_cmd(map_plan)
+for cmd in cmd_plan:
+    for i in range(0,cmd[0]):#rotate once for each rotation
+        await hwoi.sendCommand(Commands.ROTATE_TO)
+        await asyncio.sleep(2)
+    await hwoi.sendCommand(Commands.MOVE_TO)
+    await asyncio.sleep(2)
+                                            </code>
+                                        </pre>
+                                        The robot is placed oriented towards zero degrees at the approximate position of the starting location given. This worked pretty well, though there were snags/collisions if the robot performed a motion poorly. See the Lab 10 Supercut at the bottom of the page for some examples of successful runs (and a couple of bad ones). The benefit of using the PID loop for the rotation, and the ToF sensor for the linear movement, was that I had good results on a number of runs for a variety of battery levels. Until the robot could no longer move at all, the method of motion was entirely sensor-dependent, instead of relying on open-loop timing. 
+                                    </p>
+                                    <h7><b>Incorporate localization</b></h7>
+                                    <p class="mb-5">
+                                        I used a single call to the <code>init_bayes_filter()</code> method from Lab 9 in order to localize at the ending location. These results are usually trustworthy, and allow me to report actual numbers for error between ending position and desired ending position. I did try adding localization into the plan whenever the robot changed direction, but it lowered the reliability of the planned motion. This merely would have plotted a more accurate trajectory of the real robot on the map, since the belief is not incorporated into the next command.
+                                        <pre>
+                                            <code>
+#perform command send
+cmd_plan = plan_to_cmd(map_plan)
+for cmd in cmd_plan:
+    if(cmd[0]&gt0):
+        #this is where localization would help (indicates a direction change, before execution)
+    for i in range(0,cmd[0]):#rotate once for each rotation
+        await hwoi.sendCommand(Commands.ROTATE_TO)
+        await asyncio.sleep(2)
+    await hwoi.sendCommand(Commands.MOVE_TO)
+    await asyncio.sleep(2)
+                                            </code>
+                                        </pre>
+                                    </p>
+                                    <p class="mb-5">
+                                        After running the commands to perform the BFS-planned path, and then localizing to indicate completion and calculate error, below shows the results of a few runs:
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/execute_loc/execute_loc_1.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/execute_loc/execute_loc_1_err.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                The path is generated on the occupancy grid using BFS. The goal location is reached relatively well. The localization map has a higher discretization than the plan, hence its higher precision.
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/execute_loc/execute_loc_2.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/execute_loc/execute_loc_2_err.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Another path is generated on the occupancy grid using BFS. The goal location is reached relatively well.
+                                            </figcaption>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/execute_loc/execute_loc_3_bel.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/execute_loc/execute_loc_3.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/execute_loc/execute_loc_3_err.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Another path is generated on the occupancy grid using BFS, and the final belived position is shown. The goal location is reached poorly. A bad rotation at the corner caused a drift as the robot made its way down the map.
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/execute_loc/execute_loc_4_bel.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/execute_loc/execute_loc_4.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab10/execute_loc/execute_loc_4_err.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Another path is generated on the occupancy grid using BFS, and the final believed position, plotted on the plotter. The goal location is reached poorly. The robot missed the mark and ended up above the carboard divider, instead of below it as was intended.
+                                            </figcaption>
+                                        </figure>
+                                        Please see the Lab 10 Supercut for actual footage of these runs, and others. The length of a run depends on the path length, of course, but is usually completed within 40 seconds or so.
                                     </p>
                                     <h6>Areas of improvement, given more time</h6>
                                     <p class="mb-5">
-                                        With respect to the simulator, I believe a more concerted effort could be made to get it to locally plan more realistically. That is, based on only the returned belief position from the Bayes Filter, it should be able to find out where to go next. Something I noticed during Lab 8 is that short movements caused the Bayes Filter error to increase. A next step with the simulator could be to only run the Bayes filter every few steps, and its performance might increase. However, this leaves the robot with only its odometry data in between observation steps (which cannot be trusted).<br>
-                                        [comments on real robot improvements]
+                                        With respect to the simulator, I believe a more deliberate effort could be made to get it to locally plan more realistically. That is, based on only the returned belief position from the Bayes Filter, it should be able to find out where to go next. Something I noticed during Lab 8 is that short movements caused the Bayes Filter error to increase. Running the Bayes filter only every few steps could improve performance. However, this leaves the robot with only its odometry data in between observation steps (which cannot usually be trusted). Running localization at every step increases runtime dramatically and unnecessarily, though running through the motions without that step is fairly rapid.<br><br>
+                                        With respect to the real robot, I left a lot to be desired for the future:
+                                        <ul>
+                                            <li>Incorporate a clockwise rotation so that the robot both decreases runtime, and maintains more angular certainty by cutting rotations.</li>
+                                            <li>Incorporate occasional localization into the command loop to modify subsequent actions.</li>
+                                            <li>Create a larger map to allow more interesting path planning and larger c-space.</li>
+                                            <li>Implement collision detection to prevent errors during execution.</li>
+                                            <li>More accurate odometry using ToF sensor and robot angle to update position.</li>
+                                            <li>Spend more time tuning the PID rotation and ToF translation for accuracy and precision.</li>
+                                            <li><a href="https://dmd354.github.io/ECE4960/" target="_blank">Daniel DiAngelis</a> was able to "minimize" his commands to move along the entire linear path before turning. This would be a great way to cut run time.</li>
+                                        </ul>
+                                    </p>
+                                    <p class="mb-5">
+                                        Shout out to <a href="https://dmd354.github.io/ECE4960/" target="_blank">Daniel DiAngelis</a> for some inspiration with this lab. I was really sad that I couldn't get a foothold or make progress on the real robot (spinning my wheels, so to speak, while trying to get a bug algorithm to work), but when I saw that his robot was able to execute a simple set of commands that he prepared and sent successively, I was quickly able to plunge ahead using a similar method. We ended up with quite different implementations, but the general idea of sending turn and move commands was the same.
                                     </p>
                                     <h5>Lab 10 Video</h5>
                                     <div class="embed-responsive embed-responsive-16by9">
-                                            <iframe class="embed-responsive-item" src="" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                            <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/t70yqAcZFxA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                         </div>
-                                        <p class="mb-5">Description</p>
+                                        <p class="mb-5">This supercut shows recalibration for the new map, simulated path planning, and real robot path execution. Don't be misled: there were far more failed runs than successful ones! I did my best to show some interesting cases.</p>
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
