@@ -172,9 +172,19 @@
                             <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
                             </div>
+                            <img class="img-fluid" src="assets/img/photos/lab11/header.png" alt="" />
+                        </div>
+                        <h5 class="text-center">Lab 11b: Inverted Pendulum Simulation</h5>
+                    </div>
+                    <!-- Portfolio Item 12-->
+                    <div class="col-md-6 col-lg-4 mb-5">
+                        <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal12">
+                            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+                                <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
+                            </div>
                             <img class="img-fluid" src="assets/img/portfolio/cabin.png" alt="" />
                         </div>
-                        <h5 class="text-center">Lab 11: Inverted Pendulum</h5>
+                        <h5 class="text-center">Lab 12b: Inverted Pendulum Simulation</h5>
                     </div>
                 </div>
             </div>
@@ -3298,7 +3308,7 @@ for cmd in cmd_plan:
                             <div class="row justify-content-center">
                                 <div class="col-lg-8">
                                     <!-- Portfolio Modal - Title-->
-                                    <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal11Label">LAB 11: Inverted Pendulum</h2>
+                                    <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal11Label">LAB 11b: Inverted Pendulum Simulation Part 1: LQR control</h2>
                                     <!-- Icon Divider-->
                                     <div class="divider-custom">
                                         <div class="divider-custom-line"></div>
@@ -3306,9 +3316,359 @@ for cmd in cmd_plan:
                                         <div class="divider-custom-line"></div>
                                     </div>
                                     <!-- Portfolio Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/portfolio/submarine.png" alt="" />
+                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/lab11/header.png" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <p class="mb-5"><a href="https://cei-lab.github.io/ECE4960/Schedule.html">Lab 11</a></p>
+                                    <h5>Lab 11 Goals</h5>
+                                    <p class="mb-5">
+                                        For <a href="https://cei-lab.github.io/ECE4960/Lab11b.html">Lab 11b</a>, I implemented linear feedback control on a simulated inverted pendulum attached to a cart that resembles our robot. Some non-ideal characteristics of the real robot are included. Source code for the simulation is provided by course staff, and can be found <a href="https://cei-lab.github.io/ECE4960/ECE4960_Lab11b.zip" target="_blank">here</a>.
+                                    </p>
+                                    <h5>Lab 11 Report</h5>
+                                    <h6>Hand-tuned K-control</h6>
+                                    <p class="mb-5">
+                                        Equations of motion for an inverted pendulum are derived in class, which use free-body diagrams to determine a state vector given the degrees of freedom of the system. Restricting the robot to a one-dimensional axis, and fixing the pendulum to a point on the cart, the acceleration of the robot's position and the pendulum's angle can be derived as functions of the velocity and displacement of those variables, as well as applied forces.
+
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/FBD_1.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Free body diagrams allowed the physical parameters of the robot to be turned into a full linearlized set of equations of motion during lecture.
+                                            </figcaption>
+                                        </figure>
+                                        
+                                        To linearize the equations of motions around the point where the pendulum is upright (which is unstable, but is a "fixed point" where the system won't move when started there with zero velocity), we derive the approximate equations of motion for the system close to that position. These equations then give us a good sense of how to actuate the system to keep it at the linearized point, or to move it to some other reference location. These equations of motion are boiled down into an A matrix, which defines how the pendulum and cart system will evolve in time, given a specific state of the system, and a B matrix which defines how the system reacts to a given actuation force. The B-matrix tells us which pieces of the state vector we are capable of directly affecting through actuation.
+
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/A_B_eqn.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                After deriving the equations of motion, the matrices A and B define the evolution of the system using the state vector and actuation applied force <code>u</code>.
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/axplusbu.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                In general, the state vector x evolves following this equation which takes into account natural movement and the effect of actuation/applied force.
+                                            </figcaption>
+                                        </figure>
+                                        
+                                        We then defined an applied force "u" which is linearly proportional to the state vector "x". This is the "linear" part of the linear controller, and the above equation is simplified to an equation linear in the state vector.
+
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/uiskx.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Applying a force using a vector K and the state vector attempts to return the state vector to its linearized fixed point by applying control opposite to its sign (because it is at a zero at the fixed point).
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/aminusbkx.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                After deriving the equations of motion and applying linear control, the state of the system evolves based on this equation. If its eigenvalues are negative, each of the parameters in the state vector are stable (the state will decay to the fixed point).
+                                            </figcaption>
+                                        </figure>
+
+                                        The eigenvalues of the new, controlled, equations of motion give us a sense of stability for each component. Negative eigenvalues imply exponential decay of error, and therefore stability. By choosing our control vector K such that the equations of motion have negative eigenvalues, we can keep the inverted pendulum upright. Using an ODE solver, the simulation can numerically calculate the time-evolution of this system accurately.
+                                    </p>
+                                    <h7><b>Physical Parameters</b></h7>
+                                    <p class="mb-5">
+                                        The first step in the simulator was to modify the physical parameters to match my robot measurements. The pendulum parameters were left alone, but the robot mass, length, distance from the x-axis, and height were all changed to match values found in Lab 3.
+                                        <pre>
+                                            <code>
+#Physical parameters of the inverted pendulum known to the controller
+m1 = 0.03   # Mass of the pendulum [kg]
+m2 = .5627   # Mass of the cart [kg] 
+ell = 1.21  # Length of the rod [m]
+g = -9.81   # Gravity, [m/s^2]
+b = 1.8   # Damping coefficient [Ns], changed to match lecture value which Prof. Petersen said was more realistically calculated
+                                            </code>
+                                        </pre>
+                                        Running the simulator without any further modifications shows a swinging pendulum and shifting robot that looks physically realistic. The update rate of the animation is kept high so that the full 30 second simulation finishes a bit faster than it would if run in real life.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/Kcontroller/no_control.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Under no control, the pendulum swings freely below the cart, and the cart shifts back and forth, confirming the nonlinear dynamics of the system. 
+                                            </figcaption>
+                                        </figure>
+                                    </p>
+                                    <h7><b>Pole Placement and K-control</b></h7>
+                                    <p class="mb-5">
+                                        By reversing the process of choosing a K such that the eigenvalues are negative, we can choose negative eigenvalues to guarantee stability, and use some <code>scipy</code> helper functions to calculate the appropriate values for the K-matrix, given both A and B, to achieve those eigenvalues. The following was provided by course staff to design a K-controller by hand in this way. I precalculate K in pendulumParam.py, allowing easy access to the A and B matrices.
+                                        <pre>
+                                            <code>
+dpoles = np.array([-1,\
+                   -1.1,\
+                   -1.2,\
+                   -1.3])
+Kr = control.place(A, B, dpoles)
+                                            </code>
+                                        </pre>
+                                        In <code>pendulumControllerDynamics.py</code>, the state vector is calculated as the difference between the desired state (setpoint) and the current state. K is then applied to this error to calculate the applied actuation <code>self.u</code>.
+                                        <pre>
+                                            <code>
+error = np.subtract(curr_state,des_state)
+action = -P.Kr*(error)
+self.u = action
+                                            </code>
+                                        </pre>
+                                        Using examples shown in class, as well as after experimenting with many of my own, some pole-choice examples are shown below. While weak values either fail to stabilize or barely stabilize, aggressive values will perform unrealistically for the real robot, and will not be robust under real robot contraints.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/Kcontroller/weak_control.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Under weak control, with <code>dpoles = np.array([-.01,-.02,-.03,-.04])</code>, the cart flies off the screen and eventually loses control of the pendulum. 
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/Kcontroller/weak_control_2.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Under weak control, with <code>dpoles = np.array([-.8,-.7,-.6,-.5])</code>, the cart slowly moves towards the setpoints while keeping the pendulum upright. 
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/Kcontroller/aggressive_control.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Under aggressive control, with <code>dpoles = np.array([-8,-7,-6,-5])</code>, the cart sharply moves from setpoint to setpoint in rapid fashion, but inrealistically fast, and in a way that would not be robust to noise or modeling errors in any way.
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/Kcontroller/decent_control.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Under decent control, with <code>dpoles = np.array([-1,-1.1,-1.2,-1.3])</code>, similar to those found in class, the cart drifts from setpoint to setpoint on the square reference signal, but without huge swings of the pendulum, and without moving unrealistically fast (to my eye).
+                                            </figcaption>
+                                        </figure>
+                                    </p>
+                                    <h6>LQR Control to Choose K</h6>
+                                    <p class="mb-5">
+                                        Instead of choosing K by hand, a Linear Quadratic Regulator will choose K such that a quadratic cost function is minimized. The minimum is unique, and determined by the Ricatti equation, but changing R and Q can change the penalty applied to certain states. While Q controls the penalty on changes in the state variables themselves, R controls the penalty placed on the energy used by the system to achieve a desired state. (Source: <a href="https://www.researchgate.net/post/how_to_determine_the_values_of_the_control_matrices_Q_and_R_for_the_LQR_strategy_when_numerically_simulating_the_semi-active_TLCD">How to determine the values of the control matrices Q and R...</a>). Using the penalties demonstrated in class, the pendulum stabilizes well, and the low cost on energy means that it approaches the reference positions quickly. No matter how high the energy cost is increased, the pendulum remains stable, but it does become more slow to respond.
+                                        <pre>
+                                            <code>
+Q = np.matrix([[1, 0.0, 0.0, 0.0],
+                [0.0, 1, 0.0, 0.0],
+                [0.0, 0.0, 10, 0.0],
+                [0.0, 0.0, 0.0, 100]])
+R = np.matrix([.001])
+#solve algebraic Ricatti equation (ARE)
+S = scipy.linalg.solve_continuous_are(A, B, Q, R) 
+# Solve the ricatti equation and compute the LQR gain
+Kr = np.linalg.inv(R).dot(B.transpose().dot(S)) 
+                                            </code>
+                                        </pre>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/LQRcontroller/plain_LQR/decent_control_defaultclass.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                The Q and R values shown above (which were the ones described in class), allow for a really good controller which quickly moves to setpoints, but without too much error on the angle of the pendulum.
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/LQRcontroller/plain_LQR/weak_control_2_r50.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Increasing R to <code>R = np.matrix([50])</code> makes the angle of the pendulum less swing-prone, but makes the entire system only drift very slowly to the setpoints.
+                                            </figcaption>
+                                        </figure>
+                                    </p>
+                                    <h7><b>Penalty Tuning</b></h7>
+                                    <p class="mb-5">
+                                        I tried two different methods for tuning Q and R, found in these <a href="http://www.cds.caltech.edu/~murray/courses/cds110/wi06/lqr.pdf"> Cal Tech Lecture Notes </a>. The first method involved using the units of each state to define a Q penalty that was of equal weight when error was at an acceptable value for each parameter. For example, if an error of .1m is acceptable in the position of the robot, then "penalty 1" should be set such that, when multiplied by that error squared, the cost function produces a value of 1. This produces "penalty 1" = 100. Similarly, if an error of .1m/s is acceptable for the velocity, "penalty 2" = 100. If an engle error of .02 radians is acceptable, then a "penalty 3" = 25,000 is required. Lastly, "penalty 4" is given an order of magnitude more penalty than theta since the fact that the pendulum is not rotating very important. I then increased or decreased R at will to penalize energy use.
+                                        <pre>
+                                            <code>
+Q = np.matrix([[100, 0.0, 0.0, 0.0],
+                [0.0, 100, 0.0, 0.0],
+                [0.0, 0.0, 2500, 0.0],
+                [0.0, 0.0, 0.0, 25000]])
+R = np.matrix([.01])
+                                            </code>
+                                        </pre>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/LQRcontroller/plain_LQR/decent_control_tunedQ_better.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With a more custom Q matrix, and a low energy cost, the pendulum is a little more sloppy and has some error on the setpoint, in favor of a gentler motion.
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/LQRcontroller/plain_LQR/decent_control_tunedQ_2.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With a higher energy cost of <code>R = np.matrix([50])</code>, and lowering the position and velocity costs to 10, I can keep the motion very smooth at the expense of accuracy at the setpoint.
+                                            </figcaption>
+                                        </figure>
+
+                                        This method involves more work, and requires one to put more thought into what "acceptable" error is in each part of the state space. However, it was less useful for tuning the Q and R matrices, and did not produce the best results. Even after several changes to the penalty parameters themselves, the controller was too gentle, since it penalized error on the angle of the pendulum much more than necessary (but might be more robust to noise later). 
+                                    </p>
+                                    <p class="mb-5">
+                                        The second method was a much more useful method, but takes into account less variation in Q to compensate for different tolerances on different parts of the state vector. By setting Q to the identity matrix, R becomes the only variable required to tune the system. By ignoring Q the tuning becomes only about how much energy is used to control the pendulum. By choosing low values for R, high energy use is not penalized, and the pendulum performs strong swings to get from setpoint to setpoint quickly, but has a large error in angle on the way. When the values are too high, the pendulum stays upright but moves very very slowly between the setpoints, similar to the first example using Q and R from class.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/LQRcontroller/plain_LQR/slow_control_rp1.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                One example with Q as the identity matrix and <code>R = np.matrix([0.1])</code>, clearly moves and stabilizes, but is much worse than the values from class which would penalize such a large error in the pendulum angle. This demonstrates the necessity of that penalty.
+                                            </figcaption>
+                                        </figure>
+                                    </p>
+                                    <p class="mb-5">
+                                        I chose the following after some trail and error:
+                                        <pre>
+                                            <code>
+Q = np.matrix([[10, 0.0, 0.0, 0.0],
+                [0.0, 10, 0.0, 0.0],
+                [0.0, 0.0, 2500, 0.0],
+                [0.0, 0.0, 0.0, 25000]])
+R = np.matrix([5])
+                                            </code>
+                                        </pre>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/LQRcontroller/plain_LQR/chosen_one.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                I chose these values because they look realistic and not overzealous, achieve the setpoint in a short period of time, and limit the amount of overshoot when moving from setpoint to setpoint. 
+                                            </figcaption>
+                                        </figure>
+                                        The eigenvalues of each of these choices was stored appended in a text file which shows the chosen K values as well.
+<pre>
+    <code>
+f = open("K_poles_lqr_log.txt","a+")
+print(Kr, np.linalg.eig(A-B*Kr)[0])
+f.write("Poles: "+str(np.linalg.eig(A-B*Kr)[0])+", K: "+str(Kr)+"\n")
+f.close()
+####output:
+Poles: [-104.0150214 +0.j           
+        -0.51427764+0.j  
+        -0.39659666+0.47289115j   
+        -0.39659666-0.47289115j], 
+K: [[ -1.41421356  -7.50836845 100.65828855  78.61773522]]
+    </code>
+</pre>
+                                        Which makes sense, since I am very worried about the pendulum angle, and not so much about the position or velocity of the cart.
+                                    </p>
+                                    <h6>Real Robot Errors</h6>
+                                    <h7><b>Deadband and Saturation</b></h7>
+                                    <p class="mb-5">
+                                        The real robot cannot actuate with an arbitrary amount of force, and also won't move at all under a certain force application. To find these values, I used more data from Lab 3, where I found the maximum acceleration of the robot to be 3.33m/s/s. Since my robot's mass is 0.5627kg with battery and electronics on board, I calculate a maximum force applied by the robot to be about 1.8N. Assuming that the robot was driven full speed ahead using the remote controller when that acceleration test was performed, and assuming that in the non-deadband range of the motors, there is a linear relationship between duty-cycle and force applied, I can calculate a deadband and saturation value based on my experience with the robot so far. 
+<pre>
+    <code>
+#In pendulumParam.py:
+
+deadband = (80/255)*m2*3.33   #.5627kg*3.33m/s/s = F = ma = (max accel at max drive using controller)*(robot mass)
+saturate = m2*3.33
+
+#In pendulumControllerDynamics.py:
+
+if abs(action)<=abs(P.deadband):
+    self.u = 0
+if abs(action)>=abs(P.saturate):
+    if action>0:
+        self.u = P.saturate
+    else:
+        self.u = -P.saturate
+    </code>
+</pre>
+                                        If I use my deadband from Lab 6 which was 170/255, the deadband ends at 1.25N. I found this almost impossible to stabilize. In reality, my experience with the deadband of the motors is that the robot, when driving forward or backward (not rotating), and on relatively low battery, can just barely scoot forwards at 80/255. Using this value instead gives me a deadband below about 0.6N. I had more success with stabilizing with this deadband, which is a very pessimistic estimate.
+                                    </p>
+                                    <p class="mb-5">
+                                        While the saturation point did not cause many issues, the deadband would cause major instability that crashes the simulator as a result. To maintain balance, the reference signal is changed to a sinusoid, and is ramped up to a large magnitude and frequency. This keeps the robot always moving, and tries to keep the actuation force outside of the deadband region as much as possible. In this way the robot is always applying a correction, so there is no chance for the pendulum to swing too far to catch while inside the deadband of the robot. I had some success with some strong sinusoidal reference signals, and successfully control the pendulum with realistic deadband and saturation values. 
+<pre>
+    <code>
+ref = signalGen(amplitude=500, frequency=.5, y_offset=0)
+ctrl = pendulumCnt(param=P,zref=ref.sin)
+    </code>
+</pre>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/LQRcontroller/dead_sat/gentle_sin_lowdead_sat.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With a high amplitude sinusoid, I observe a low amplitude rocking back and forth, and with a lower deadband of 0.2, I can keep the pendulum upright and keep the cart out of the deadband. 
+                                            </figcaption>
+                                        </figure>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/LQRcontroller/dead_sat/aggressive_sin_dead_sat_2.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With a much more aggressive sinusoid (amplitude 500, frequency 2), and my fully realistic deadband of about 0.6N, I can keep the pendulum upright and keep the cart out of the deadband. The motion itself, however, is quite erratic and unrealistically jittery.
+                                            </figcaption>
+                                        </figure>
+                                    </p>
+                                    <p class="mb-5">
+                                        Note that the Q and R cost functions were changed to allow a more controlled tuning of the sinusoidal signal. A high energy cost of >100,000 was usually successful for allowing the pendulum to remain relatively stable while the cart itself was never truly at rest.
+                                    </p>
+                                    <h7><b>Sensor Noise</b></h7>
+                                    <p class="mb-5">
+                                        To implement sensor noise, the <code>random.gauss()</code> function is used to generate gaussian noise for each parameter based on independent noise estimates. Using data that I calculated for Lab 5, I found that my ToF sensor (which I would expect to use for an estimate of position) had a standard deviation of about 1.5mm in short range mode, and about 50mm in long range mode. To estimate the error on the derivative of this signal, I used linear error propagation.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/sigzdot.jpg" alt="" />
+                                            <figcaption class="figure-caption">
+                                                My attempt to propagate error through position to velocity. Not sure if these equations make any sense... 
+                                            </figcaption>
+                                        </figure>
+                                        Since the update rate of the ToF senseor is 20ms at maximum, I estimate the standard deviation of the noise on the derivative signal to be about 2.5m/s for the 50mm error and about 0.06m/s for the 1.14mm error setting. The first is quite large, and is likely an error on my part in my attempt to estimate or measure. It is also pessimistic since most of that error comes from the inconsistent values measured at the high range of the 4m sensing setting (See Lab 5 for details). I used the smaller error instead, to be generous to my simulation, since many hours were sunk into trying to stabilize with any noise at all (even tiny values for all signals). This value is also likely still pessimistic, since a low pass filter would help with noise significantly (and I would certainly be using one).
+                                    </p>
+                                    <p class="mb-5">
+                                        To estimate the error on the angle measurement, I looked at old data from Lab 6 and saw that drift was a much larger problem than noise for the gyroscope. I ballparked the gyro error around 2 dps, which translates to about .03rad/s. Using a similar linear error propagation as before, and a 30ms update rate which is what I use on the Artemis for updating the angle measurement, I estimated the standard deviation of the error on the angle to be .0009.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab11/sigzdot.jpg" alt="" />
+                                            <figcaption class="figure-caption">
+                                                My attempt to propagate error through the gyro to theta. Not sure if these equations make any sense... 
+                                            </figcaption>
+                                        </figure>
+                                        These errors are quite small, so I am likely underestimating the noise that the system would experience in reality, with respect to the gyroscope data. 
+                                    </p>
+                                    <p class="mb-5">
+                                        The error is calculated by adding gaussian distributions with these standard deviations, centered around zero, to the incoming signal, and the control force is calculated with those values instead of the ground truth values.
+<pre>
+    <code>
+z_sigma = .05043 #pessimistic calculation from Lab6 data
+zdot_sigma = .06 #linear error propagation with 20ms derivative update rate (pessimistic)
+theta_sigma = .0009 #propagate with 30ms update rate
+thetadot_sigma = .03 #2 deg error
+noise = np.array([[random.gauss(0, z_sigma)],
+                [random.gauss(0, zdot_sigma)],
+                [random.gauss(0, theta_sigma)],
+                [random.gauss(0, thetadot_sigma)]])
+sample_state = np.add(curr_state, noise)
+sample_state[2] = self.limitTheta(sample_state[2])
+error = np.subtract(sample_state,des_state)
+    </code>
+</pre>
+                                        The matrix Q, R, and the frequency and amplitude of the sinusoidal reference signal were changed again to try and stabilize with this noise, but I had a lot of trouble making it behave and could usually only stabilize for a limited amount of time, if at all. Even after removing the deadband and saturation, to allow the controller its full range of motion, the noise was too much for it to handle and would consistently break. I do not believe that this system is controllable with the realistic noise parameters that I have calculated above.
+                                    </p>
+                                    <p class="mb-5">
+                                        Instead of adding noise to every signal, I choose to add noise to only a single variable: theta, as suggested. If measured directly with the IMU, then a direct calculation of the angle might have an error of only a couple degrees, or about .01 radians. Using this as my <code>theta_sigma</code>, and setting the rest to zero, I have isolated noise to that one variable.
+                                    </p>
+                                    <h7><b>Model Errors</b></h7>
+                                    <p class="mb-5">
+                                        Errors in the model are likely to occur in an estimate of the angular momentum of the rod, as mentioned in class. While the mass of the objects are easy to directly calculate, the angular momentum is calculated based on a number of assumptions about the density and shape of the pendulum. Getting an experimental measure of the angular momentum is also difficult. We assume that the pendulum is a point mass at the end of a rod, but if we were to actually create this system some mass would be distributed along the rod. Since a rod with a fixed end has an angular momentum of mL^2/3, I divided the mass of the pendulum by 3 to see what would happen to one of my better-tuned set of parameters, and didn't see very much difference in performance when deadband and saturation are removed. It does, however, break the carefully tuned sinusoid signal which fixed deadband instability, which is to be expected since the pendulum now swings at a different natural frequency.
+
+                                        Our damping estimate can change the dynamics of our system, and is variable from location to location, and even day to day at the same location.<br><br>
+                                        Since the model breaks down outside of the specific scenario of a flat surface, bumps and irregularities in the ground, or asymmetry in the driving force between each side of the robot can cause the model to begin to fail. 
+                                    </p>
+                                    <h5>Lab 11b Video</h5>
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        <iframe class="embed-responsive-item" src="" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    </div>
+                                    <p class="mb-5">This shows a few runs of the simulator.</p>
+                                    <button class="btn btn-primary" data-dismiss="modal">
+                                        <i class="fas fa-times fa-fw"></i>
+                                        Close Window
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Portfolio Modal 11-->
+        <div class="portfolio-modal modal fade" id="portfolioModal12" tabindex="-1" role="dialog" aria-labelledby="portfolioModal21Label" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"><i class="fas fa-times"></i></span>
+                    </button>
+                    <div class="modal-body text-left">
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-lg-8">
+                                    <!-- Portfolio Modal - Title-->
+                                    <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal12Label">LAB 12b: Inverted Pendulum Simulation Part 2: LQG</h2>
+                                    <!-- Icon Divider-->
+                                    <div class="divider-custom">
+                                        <div class="divider-custom-line"></div>
+                                        <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                                        <div class="divider-custom-line"></div>
+                                    </div>
+                                    <!-- Portfolio Modal - Image-->
+                                    <img class="img-fluid rounded mb-5" src="assets/img/portfolio/safe.png" alt="" />
+                                    <!-- Portfolio Modal - Text-->
+                                    <h5>Lab 12 Goals</h5>
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
