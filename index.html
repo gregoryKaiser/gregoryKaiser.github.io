@@ -174,7 +174,7 @@
                             </div>
                             <img class="img-fluid" src="assets/img/photos/lab11/header.png" alt="" />
                         </div>
-                        <h5 class="text-center">Lab 11b: Inverted Pendulum Simulation</h5>
+                        <h5 class="text-center">Lab 11b: Inverted Pendulum Simulation (LQR)</h5>
                     </div>
                     <!-- Portfolio Item 12-->
                     <div class="col-md-6 col-lg-4 mb-5">
@@ -182,9 +182,9 @@
                             <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
                             </div>
-                            <img class="img-fluid" src="assets/img/portfolio/cabin.png" alt="" />
+                            <img class="img-fluid" src="assets/img/photos/lab12/plots/t_update/t05.png" alt="" />
                         </div>
-                        <h5 class="text-center">Lab 12b: Inverted Pendulum Simulation</h5>
+                        <h5 class="text-center">Lab 12b: Inverted Pendulum Simulation (LQG)</h5>
                     </div>
                 </div>
             </div>
@@ -3699,7 +3699,7 @@ R = np.matrix([1000000])
                                         <div class="divider-custom-line"></div>
                                     </div>
                                     <!-- Portfolio Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/portfolio/safe.png" alt="" />
+                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/lab12/plots/t_update/t06_noise01.png" alt="" />
                                     <!-- Portfolio Modal - Text-->
                                     <h5>Lab 12 Goals</h5>
                                     <p class="mb-5">
@@ -3733,7 +3733,7 @@ R = np.matrix([1000000])
                                         Note that all uses of <code>theta</code> in the argument of a <code>np.sin()</code> or <code>np.cos()</code> function call was changed to use <code>theta[0]</code> instead, to fix an initial bug.
                                     </p>
                                     <p class="mb-5">
-                                        Using the control library, I can obtain the controllability matrix of this system with <code>ctrl_ability = control.ctrb(A,B)</code>, and the observability matrix with <code>obs_ability = control.obsv(A,C)</code>. If the rank of the controllability is equal to its size (dimension), the system is controllable, and if the rank of the observability is equal to its size, the system is observable.
+                                        Using the control library, I can obtain the controllability matrix of this system with <code>ctrl_ability = control.ctrb(A,B)</code>, and the observability matrix with <code>obs_ability = control.obsv(A,C)</code>. If the rank of the controllability is equal to its size (dimension), the system is controllable, and if the rank of the observability is equal to its size, the system is observable. 
                                     </p>
                                     <p class="mb-5">
                                         <pre>
@@ -3755,7 +3755,7 @@ Controllability:   [[  0.           2.10526316  -3.45706371   6.75485981]
 Rank(controllability): 4
                                             </code>
                                         </pre>
-                                        Because the rank(observability)<4, the system is not observable. However, the rank(controllability)=4, so the system is controllable. Because this system is simulated nearly perfectly to match the model that the filter is using, the Kalman Filter is able to get a grasp on the current state and control the pendulum well despite the lack of observability. Since the output of each element of the observability matrix corresponds depends on C and A, and since no CA<sup>n</sup> can produce a non-zero value in the first column, the first variable in the state vector cannot be observed (in this case, the position: z). <br><br>
+                                        Because the rank(observability)<4, the system is not observable. However, the rank(controllability)=4, so the system is controllable. Because this system is simulated nearly perfectly to match the model that the filter is using, the Kalman Filter is able to get a grasp on the current state and control the pendulum well despite the lack of observability. Since the output of each element of the observability matrix corresponds depends on C and A, and since no CA<sup>n</sup> can produce a non-zero value in the first column, the first variable in the state vector cannot be observed (in this case, the position: z) (Source: <a href="https://www.ece.rutgers.edu/~gajic/psfiles/chap5traCO.pdf" target="_blank">Controllability and Observability</a>, page 7). <br><br>
                                         Of course, this is still fine, because as we learned in Lab 11, knowing where ther cart is is not as important as knowing the angle of the pendulum, its speed, and the cart's speed. We could care less where the cart is as long as the pendulum isn't falling over.
                                     </p>
                                     <h6>Initial State Discrepancy (and recovery)</h6>
@@ -3874,21 +3874,98 @@ y_kf = P.C.dot(old_state) + np.random.randn()*0.03
                                                 After increasing <code>sigma_n</code> to a diagonal of 0.2, there didn't seem to be much benefit in becoming less confident in measured values.
                                             </figcaption>
                                         </figure><br>
-                                        With the additional nonlinearity of realistic measurement noise, as well as process noise, on top of previous steps, the Kalman Filter is still able to estimate the state of the pendulum well enough to remain upright. The estimated states <code>theta</code> and <code>zdot</code> are not as noisy as the source of the noise in <code>thetadot</code>.
+                                        With the additional nonlinearity of realistic measurement noise, as well as process noise, on top of previous steps, the Kalman Filter is still able to estimate the state of the pendulum well enough to remain upright. The estimated states <code>theta</code> and <code>zdot</code> are not as noisy as the source of the noise in <code>thetadot</code>. The value of <code>sigma_n</code> is restored to 0.1.
                                     </p>
                                     <h6>Messing with A and B</h6>
                                     <p class="mb-5">
-                                        
+                                        To "mess" with the model thorugh the A and B matrices, I modified their values before being used in the Kalman Filter function. This way the simulator still uses A and B to evolve the system, but the Kalman Filter is actuating based on a faulty set of parameters. The matrices at the top of the <code>kalmanFilter.py</code> definition use the actual A and B model to generate discretized matrices.
+                                        <pre>
+                                            <code>
+Ad = scipy.linalg.expm(P.A*P.T_update)*1.0003
+Bd = P.B*P.T_update*1.0003
+                                            </code>
+                                        </pre>
+                                        This effectively changes each parameter with a non-zero value. If the model were to be wrong, it is likely that we would have incorrectly measured mass, drag, the length of the rod, or other such solid parameters. Since we are unlikely to have mis-characterized the zero-entries, scaling the non-zero components makes the most sense.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/bad_model/A001_B001.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With a change in the A and B matrices of only 0.1%, my pendulum was unstable and lost control. 
+                                            </figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/bad_model/A0001_B0001.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With a change in the A and B matrices of 0.01%, my pendulum was able to maintain control, but drifted around the setpoints.
+                                            </figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/bad_model/A0003_B0003.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Changing the A and B matrices by 0.03% was the most that I could manage before instability set in. Actual performance at maintaining stability with this model inaccuracy is poor.
+                                            </figcaption>
+                                        </figure><br>
+                                        I found that above about 0.03% error applied to both the A and B matrices, the Kalman Filter begins to fail to estimate the state of my system well. I restored the error to 0.01% before moving on to incorporating the lower update time.
                                     </p>
-                                    <h6>Lowering the Update Time</h6>
+                                    <h6>Changing the Update Time</h6>
                                     <p class="mb-5">
-                                        
+                                        Changing the update time is as simple as updating one line in <code>pendulumParam.py</code>:<br>
+                                        <code>T_update = 0.001 # Controller and Estimator update rate [s] </code><br>
+                                        Since the update time is being used as a measure of how often an update occurs, increasing its value will slow down the update:<br>
+                                        <code>#Update controller and sensors every &ltT_update&gt seconds<br>
+                                        if (t % P.T_update) < dt:<br>
+                                        ...</code><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/t_update/t01.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Increasing the update time to 0.01s still performs pretty well, despite the myriad nonlinearities present.
+                                            </figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/t_update/t01.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Increasing the update time to 0.05s causes a lot of wobbling, but manages to keep the pendulum upright.
+                                            </figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/t_update/t01.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Increasing the update time to 0.06s, the pendulum could remain upright once I decreased the measurement noise a bit.
+                                            </figcaption>
+                                        </figure><br>
+                                        I found that with my realistic measurement noise values, I could only increase the update time to about 0.05s without instability setting in. However, by lowering my measurement noise a bit (to 0.01 instead of 0.03), I was able to increased the update time to only once every 0.06s.
                                     </p>
-                                    <h6>Does it work?</h6>
+                                    <h6>Final Nonlinearities</h6>
                                     <p class="mb-5">
-                                        no
+                                        The final set of included sources of error:
+                                        <ul>
+                                            <li>Initial State Error: [0.5, 0.3, 0.1, 0.2]</li>
+                                            <li>Deadband and Saturation: [0.59, 1.87]</li>
+                                            <li>Measurement and Process Noise: [0.03, 0.01]</li>
+                                            <li>Bad Model: 1.01%</li>
+                                            <li>T_update = 0.05s</li>
+                                        </ul>
                                     </p>
-                                    <h6>Extra Credit (Optional)</h6>
+                                    <h6>Will it work on the real robot?</h6>
+                                    <p class="mb-5">
+                                        Based on all of these nonlinearities, and how well the Kalman Filter was able to handle them, my instinct is to be optimistic that my robot would be able to balance the pendulum. However, there are a number of nonlinearities that we did not account for in this model at all. Rotation on a 2D plane, outside of this one-dimensional constraint, has not been taken into account. Differential friction in the wheels has not been controlled for. Not to mention the greatest nonlinearity of all: my ability to debug errors in implementation (perhaps the greatest obstacle). 
+                                    </p>
+                                    <p class="mb-5">
+                                        My final answer is no, the robot would not be able to balance the pendulum. Perhaps I do not understand the Kalman Filter well-enough, but I am skeptical that it can handle all of the strange behaviors of our robots. It still might be worth a try!
+                                    </p>
+                                    <h6>Closing Statement</h6>
+                                    <p class="mb-5">
+                                        This course has taught me a lot and I am very proud to have produced this website as a result. Thank you to the entire course staff and Asst. Prof. Petersen for running such an interesting course in such a weird semester (Fall 2020).<br>
+                                        <br>
+                                        For this particular lab I'd like to thank <a href="https://dmd354.github.io/ECE4960/" target="_blank">Daniel DiAngelis</a> and <a href="https://kebradford.github.io/ECE4960/" target="_blank">Katie Bradford</a> for their help keeping me un-stuck and making progress on this lab through their conversations on Campuswire.<br><br>
+                                        I'd also like to thank my classmates in Fast Robots in general for the help along the way with both class content and morale. It's tough not seeing everyone's faces around campus but at least we got to chat about Fast Robots every once in a while. :)<br><br>
+                                        -Greg Kaiser
+                                    </p>
+                                    <!-- <h6>Extra Credit (Optional)</h6> -->
+                                    <h5>Lab 12b Video</h5>
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        <iframe class="embed-responsive-item" src="" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    </div>
+                                    <p class="mb-5">This shows a few runs of the simulator to demonstrate the above more vividly.</p>
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
