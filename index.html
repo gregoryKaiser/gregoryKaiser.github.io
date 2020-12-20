@@ -3702,6 +3702,141 @@ R = np.matrix([1000000])
                                     <img class="img-fluid rounded mb-5" src="assets/img/portfolio/safe.png" alt="" />
                                     <!-- Portfolio Modal - Text-->
                                     <h5>Lab 12 Goals</h5>
+                                    <p class="mb-5">
+                                        In this final lab of the semester, <a href="https://cei-lab.github.io/ECE4960/Lab12b.html" target="_blank">Lab 12</a>, we will be experimenting with a Kalman Filter to control an inverted pendulum. For some explanation of the controller used, see Lab 11. The implementation of the Kalman Filter itself is provided by course staff <a href="https://cei-lab.github.io/ECE4960/ECE4960_Lab12b.zip" target="_blank">here</a>. 
+                                    </p>
+                                    <h5>Lab 12 Report</h5>
+                                    <p class="mb-5">
+                                        The point of a Kalman Filter seems to be similar to the point of using the Bayes Filter to measure the position of the robot in Lab 8. Instead of incorporating uncertainty with respect to the position and orientation of the robot, we are instead incorporating uncertainty with respect to the state vector representing the inverted pendulum system. Namely, we are incorporating uncertainty into the position and velocity of the cart, as well as the angle and angular velocity of the pendulum.
+                                    </p>
+                                    <p class="mb-5">
+                                        Instead of planning a path based on the current belief of the state of the robot, however, we are using the belief to calculate the actuation applied force "u" which best represents the current state. To begin the lab, I modified the physical parameters of the robot to match my measurements from Lab 3. See Lab 11 for details.
+                                    </p>
+                                    <p class="mb-5">
+                                        Because the Kalman Filter uses a discrete time-step, as opposed to continuous variables, the A and B matrices are changed to fit a new form.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/discrete_slide10.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                This slide from Lecture 18, page 10, shows the new formula to which the A and B matrices must now conform. This is in contrast to the formula they followed previously (see Lab 11).
+                                            </figcaption>
+                                        </figure><br>
+                                        Where the previous lab was predicting a "velocity" for each state variable based on A, B, u, and the state vector, the Kalman Filter is now trying to estimate the next state vector in time <i>itself</i>, straight from A, B, and the actuation signal u(t). Thank you to <a href="https://dmd354.github.io/ECE4960/" target="_blank">Daniel DiAngelis</a> for the advice on where to look to answer this question.
+                                    </p>
+                                    <p class="mb-5">
+                                        Based on the C-matrix in <code>pendulumParam.py</code>, we are only measuring the angular rate (thetadot) directly, since only the last element in the vector is activated. This simulates direct observations using the gyroscope only. This means we are estimating the rest of the state variables based on only this one input.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/baseline.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                One a baseline run of the simulator, the pendulum is balanced well and has no trouble moving to setpoints.
+                                            </figcaption>
+                                        </figure><br>
+                                        Note that all uses of <code>theta</code> in the argument of a <code>np.sin()</code> or <code>np.cos()</code> function call was changed to use <code>theta[0]</code> instead, to fix an initial bug.
+                                    </p>
+                                    <p class="mb-5">
+                                        Using the control library, I can obtain the controllability matrix of this system with <code>ctrl_ability = control.ctrb(A,B)</code>, and the observability matrix with <code>obs_ability = control.obsv(A,C)</code>. If the rank of the controllability is equal to its size (dimension), the system is controllable, and if the rank of the observability is equal to its size, the system is observable.
+                                    </p>
+                                    <p class="mb-5">
+                                        <pre>
+                                            <code>
+print("Observability:",obs_ability)
+print("Rank(Observability):",np.linalg.matrix_rank(obs_ability))
+print("Controllability:",ctrl_ability)
+print("Rank(controllability):",np.linalg.matrix_rank(ctrl_ability))
+###results of the printout:    
+Observability: [[  0.           0.           0.           1.        ]
+                [  0.          -1.35711179   8.61948673   0.        ]
+                [  0.           2.22852041  -0.84083789   8.61948673]
+                [  0.         -15.35707214  75.67629588  -0.84083789]]
+Rank(Observability): 3
+Controllability:   [[  0.           2.10526316  -3.45706371   6.75485981]
+                    [  2.10526316  -3.45706371   6.75485981 -12.86237589]
+                    [  0.           1.73988691  -2.85707745  19.68855403]
+                    [  1.73988691  -2.85707745  19.68855403 -33.79364104]]
+Rank(controllability): 4
+                                            </code>
+                                        </pre>
+                                        Because the rank(observability)<4, the system is not observable. However, the rank(controllability)=4, so the system is controllable. Because this system is simulated nearly perfectly to match the model that the filter is using, the Kalman Filter is able to get a grasp on the current state and control the pendulum well despite the lack of observability. Since the output of each element of the observability matrix corresponds depends on C and A, and since no CA<sup>n</sup> can produce a non-zero value in the first column, the first variable in the state vector cannot be observed (in this case, the position: z). <br><br>
+                                        Of course, this is still fine, because as we learned in Lab 11, knowing where ther cart is is not as important as knowing the angle of the pendulum, its speed, and the cart's speed. We could care less where the cart is as long as the pendulum isn't falling over.
+                                    </p>
+                                    <h6>Initial State Discrepancy (and recovery)</h6>
+                                    <p class="mb-5">
+                                        In order to mess with the initial state of the pendulum, I modified the initial belief, <code>mu</code>, in <code>runSimulation.py</code>one variable at a time, and then all-together. After changing one or two of the four variables one at a time, I decided to change them all at once, since rigorous data collection is not necessary (the nearly perfect system could correct for dramatic discrepancies in initial state).
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/initial_state/allp5.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With <code>mu = np.array([[P.z0+0.5], [P.zdot0+0.5], [P.theta0+0.5], [P.thetadot0+0.5]])</code>, the Kalman Filter took drastic and unrealistic action to correct for the initial error. Error on states other than the position converged to the correct state in a few seconds.
+                                            </figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/initial_state/zp5_restp3.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With <code>mu = np.array([[P.z0+0.5], [P.zdot0+0.3], [P.theta0+0.3], [P.thetadot0+0.3]])</code>, the Kalman Filter took slightly more realistic action to correct for the initial error. Error on states other than the position converged to the correct state in a few seconds.
+                                            </figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/initial_state/zp5_restp3.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With <code>mu = np.array([[P.z0+0.5], [P.zdot0+0.3], [P.theta0+0.1], [P.thetadot0+0.2]])</code>, the Kalman Filter took small action to correct for initial discrepancy. This looked the most realistic to me in terms of what the cart could actually handle. Error on states other than the position converged to the correct state in a few seconds.
+                                            </figcaption>
+                                        </figure><br>
+                                        It looks to me as though any of these discrepancies took about 5 seconds to correct at minimum, but of course the less added discrepancy, the better the filter could converge.
+                                    </p>
+                                    <h6>Deadband and Saturation</h6>
+                                    <p class="mb-5">
+                                        Just like in Lab 11, I implemented deadband and saturation in the <code>pendulumParam.py</code> file for easy access:
+                                        <pre>
+                                            <code>
+deadband = (80/255)*m2*3.33 #this value ends up at 0.59N  #.5627kg*3.33m/s/s = F = ma
+saturate = m2*3.33 #this ends up at about 1.87N
+                                            </code>
+                                        </pre><br>
+                                        The values are calculated based on a straightforward use of the max acceleration measured during Lab 3. Please see Lab 11 for details. I chose my more optimistic forward-motion-with-both-wheels minimum-driving-signal of 80/255 for my deadband in this lab. Because of the changes to the code that allow the desired theta to be zero (thanks :D), I am less worried that this part of the code will crash the simulator.
+                                    </p>
+                                    <p class="mb-5">
+                                        Inside <code>runSimulation.py</code>, under line 55, I can now append the following to clamp the actuation force to my deadband and saturation range.
+                                        <pre>
+                                            <code>
+u=-Kr.dot(mu-des_state)
+if abs(u)<=abs(P.deadband):
+    u = np.array([[0]])
+elif abs(u)>=abs(P.saturate):
+    if u>0:
+        u = np.array([[P.saturate]])
+    else:
+        u = np.array([[-P.saturate]])
+                                            </code>
+                                        </pre>
+                                        This results in the following reaction of the pendulum system.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/deadsat/dead_sat_real.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Using the realistic deadband and saturation values calculated last week, the cart can still balance the pendulum, but drifts away slowly. Note the lack of ability to return to the third setpoint in the square wave signal at the end. 
+                                            </figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/deadsat/dead_sat_wider.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                Widening the band of allowed actuation from realistic to applied forces between 0.4 N at minimum, and 2 N at maximum, the controller has an easier time returning to that last setpoint.
+                                            </figcaption>
+                                        </figure><br>
+                                        While the realistic deadband and saturation values that I used did not keep the Kalman Filter from converging to the correct state, it did have trouble moving towards a setpoint. Slightly looser constraints on the applied force returned that capability, but the realistic values were restored in order to continue the lab by piling on more realistic nonlinearities. In general, the Kalman Filter is still able to estimate the states that matter to keeping pendulum upright well enough.
+                                    </p>
+                                    <h6>Measurement and Process Noise</h6>
+                                    <p class="mb-5">
+                                        
+                                    </p>
+                                    <h6>Messing with A and B</h6>
+                                    <p class="mb-5">
+                                        
+                                    </p>
+                                    <h6>Lowering the Update Time</h6>
+                                    <p class="mb-5">
+                                        
+                                    </p>
+                                    <h6>Does it work?</h6>
+                                    <p class="mb-5">
+                                        no
+                                    </p>
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
