@@ -3823,7 +3823,58 @@ elif abs(u)>=abs(P.saturate):
                                     </p>
                                     <h6>Measurement and Process Noise</h6>
                                     <p class="mb-5">
-                                        
+                                        To add process noise, line 59 in <code>pendulumNonlinearDynamics.py</code> is uncommented, and the simulator was run to get a baseline.
+                                        <pre>
+                                            <code>
+dydt = [ydot0 + np.random.randn()*0.01, ydot1 + np.random.randn()*0.01, ydot2 + np.random.randn()*0.01, ydot3 + np.random.randn()*0.01]
+                                            </code>
+                                        </pre>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/noise/proc_noise.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With process noise on all states, the simulator is still able to stabilize and estimate the observable states well.
+                                            </figcaption>
+                                        </figure><br>
+                                        This didn't change much about the performance of the pendulum dynamics. This makes sense, since the process noise parameter <code>sigma_u</code> is 0.1, so the Kalman Filter is already taking into account this uncertainty. To make sure I wasn't making a mistake, I cranked up the process noise from 0.01 to 0.1 on every variable in order to see the effects.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/noise/proc_noise_p1.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With process noise on all states, the simulator is still able to stabilize and estimate the observable states well. Since the state estimate starts to show signs of noise, I knew I had done the right thing.
+                                            </figcaption>
+                                        </figure><br>
+                                        This setup still estimated the state well, since the Kalman Filter is expecting noise of this size already. The value of the process noise was then restored to the default value to continue adding more nonlinearity. To apply measurement noise, I applied a similar logic to the noise parameters that I calculated in Lab 11. Since we are only directly measuring thetadot, I only need to add noise to that one parameter while taking a measurement in the main simulator loop. Shout out to Katie Bradford and Daniel DiAngelis for pointing me in the right direction on this noise addition:
+                                        <pre>
+                                            <code>
+y_kf = P.C.dot(old_state) + np.random.randn()*0.03
+                                            </code>
+                                        </pre>
+                                        In Lab 11, I estimated the error in thetadot to be about .03 rad/s, but I also tried a couple different values to confirm behavior:
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/noise/both_noise_008.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With a noise parameter of 0.008, the filter has little trouble converging on the correct state, as before (and still drifts, as usual).
+                                            </figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/noise/both_noise_05.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With a noise parameter of 0.05, the filter doesn't have trouble with stability but has a hard time moving between setpoints without some larger oscillations.
+                                            </figcaption>
+                                        </figure><br>
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/noise/both_noise_03.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                With a noise parameter of 0.03, the filter doesn't have trouble with stability but has a hard time moving between setpoints without some larger oscillations. 
+                                            </figcaption>
+                                        </figure><br>
+                                        I kept the measurement noise at .03, and then adjusted <code>sigma_n</code> to account for this known error estimate.
+                                        <figure class="figure">
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/noise/both_noise_03_sigp2.png" alt="" />
+                                            <figcaption class="figure-caption">
+                                                After increasing <code>sigma_n</code> to a diagonal of 0.2, there didn't seem to be much benefit in becoming less confident in measured values.
+                                            </figcaption>
+                                        </figure><br>
+                                        With the additional nonlinearity of realistic measurement noise, as well as process noise, on top of previous steps, the Kalman Filter is still able to estimate the state of the pendulum well enough to remain upright. The estimated states <code>theta</code> and <code>zdot</code> are not as noisy as the source of the noise in <code>thetadot</code>.
                                     </p>
                                     <h6>Messing with A and B</h6>
                                     <p class="mb-5">
@@ -3837,6 +3888,7 @@ elif abs(u)>=abs(P.saturate):
                                     <p class="mb-5">
                                         no
                                     </p>
+                                    <h6>Extra Credit (Optional)</h6>
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
