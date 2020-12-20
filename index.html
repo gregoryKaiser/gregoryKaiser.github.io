@@ -174,7 +174,7 @@
                             </div>
                             <img class="img-fluid" src="assets/img/photos/lab11/header.png" alt="" />
                         </div>
-                        <h5 class="text-center">Lab 11b: Inverted Pendulum Simulation (LQR)</h5>
+                        <h5 class="text-center">Lab 11b: Inverted Pendulum Simulation 1 (LQR)</h5>
                     </div>
                     <!-- Portfolio Item 12-->
                     <div class="col-md-6 col-lg-4 mb-5">
@@ -184,7 +184,7 @@
                             </div>
                             <img class="img-fluid" src="assets/img/photos/lab12/plots/t_update/t05.png" alt="" />
                         </div>
-                        <h5 class="text-center">Lab 12b: Inverted Pendulum Simulation (LQG)</h5>
+                        <h5 class="text-center">Lab 12b: Inverted Pendulum Simulation 2 (LQG)</h5>
                     </div>
                 </div>
             </div>
@@ -3701,7 +3701,7 @@ R = np.matrix([1000000])
                                     <!-- Portfolio Modal - Image-->
                                     <img class="img-fluid rounded mb-5" src="assets/img/photos/lab12/plots/t_update/t06_noise01.png" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <h5>Lab 12 Goals</h5>
+                                    <h5>Lab 12b Goals</h5>
                                     <p class="mb-5">
                                         In this final lab of the semester, <a href="https://cei-lab.github.io/ECE4960/Lab12b.html" target="_blank">Lab 12</a>, we will be experimenting with a Kalman Filter to control an inverted pendulum. For some explanation of the controller used, see Lab 11. The implementation of the Kalman Filter itself is provided by course staff <a href="https://cei-lab.github.io/ECE4960/ECE4960_Lab12b.zip" target="_blank">here</a>. 
                                     </p>
@@ -3774,7 +3774,7 @@ Rank(controllability): 4
                                             </figcaption>
                                         </figure><br>
                                         <figure class="figure">
-                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/initial_state/zp5_restp3.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/initial_state/zp5_zdotp3_thetap1_thetadotp2.png" alt="" />
                                             <figcaption class="figure-caption">
                                                 With <code>mu = np.array([[P.z0+0.5], [P.zdot0+0.3], [P.theta0+0.1], [P.thetadot0+0.2]])</code>, the Kalman Filter took small action to correct for initial discrepancy. This looked the most realistic to me in terms of what the cart could actually handle. Error on states other than the position converged to the correct state in a few seconds.
                                             </figcaption>
@@ -3921,13 +3921,13 @@ Bd = P.B*P.T_update*1.0003
                                             </figcaption>
                                         </figure><br>
                                         <figure class="figure">
-                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/t_update/t01.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/t_update/t05.png" alt="" />
                                             <figcaption class="figure-caption">
                                                 Increasing the update time to 0.05s causes a lot of wobbling, but manages to keep the pendulum upright.
                                             </figcaption>
                                         </figure><br>
                                         <figure class="figure">
-                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/t_update/t01.png" alt="" />
+                                            <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/t_update/t06_noise01.png" alt="" />
                                             <figcaption class="figure-caption">
                                                 Increasing the update time to 0.06s, the pendulum could remain upright once I decreased the measurement noise a bit.
                                             </figcaption>
@@ -3963,9 +3963,9 @@ Bd = P.B*P.T_update*1.0003
                                     <!-- <h6>Extra Credit (Optional)</h6> -->
                                     <h5>Lab 12b Video</h5>
                                     <div class="embed-responsive embed-responsive-16by9">
-                                        <iframe class="embed-responsive-item" src="" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                        <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/hliTCuGyW1Y" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                     </div>
-                                    <p class="mb-5">This shows a few runs of the simulator to demonstrate the above more vividly.</p>
+                                    <p class="mb-5">This shows a few runs of the simulator to demonstrate the above.</p>
                                     <button class="btn btn-primary" data-dismiss="modal">
                                         <i class="fas fa-times fa-fw"></i>
                                         Close Window
