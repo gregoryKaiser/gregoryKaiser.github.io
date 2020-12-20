@@ -3318,11 +3318,11 @@ for cmd in cmd_plan:
                                     <!-- Portfolio Modal - Image-->
                                     <img class="img-fluid rounded mb-5" src="assets/img/photos/lab11/header.png" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <h5>Lab 11 Goals</h5>
+                                    <h5>Lab 11b Goals</h5>
                                     <p class="mb-5">
                                         For <a href="https://cei-lab.github.io/ECE4960/Lab11b.html">Lab 11b</a>, I implemented linear feedback control on a simulated inverted pendulum attached to a cart that resembles our robot. Some non-ideal characteristics of the real robot are included. Source code for the simulation is provided by course staff, and can be found <a href="https://cei-lab.github.io/ECE4960/ECE4960_Lab11b.zip" target="_blank">here</a>.
                                     </p>
-                                    <h5>Lab 11 Report</h5>
+                                    <h5>Lab 11b Report</h5>
                                     <h6>Hand-tuned K-control</h6>
                                     <p class="mb-5">
                                         Equations of motion for an inverted pendulum are derived in class, which use free-body diagrams to determine a state vector given the degrees of freedom of an inverted pendulum system. Restricting the robot to a one-dimensional axis, and fixing the pendulum to a point on the cart, the acceleration of the robot's position and the pendulum's angle can be derived as functions of the velocity and displacement of those variables, as well as applied forces.
@@ -3703,24 +3703,24 @@ R = np.matrix([1000000])
                                     <!-- Portfolio Modal - Text-->
                                     <h5>Lab 12b Goals</h5>
                                     <p class="mb-5">
-                                        In this final lab of the semester, <a href="https://cei-lab.github.io/ECE4960/Lab12b.html" target="_blank">Lab 12</a>, we will be experimenting with a Kalman Filter to control an inverted pendulum. For some explanation of the controller used, see Lab 11. The implementation of the Kalman Filter itself is provided by course staff <a href="https://cei-lab.github.io/ECE4960/ECE4960_Lab12b.zip" target="_blank">here</a>. 
+                                        In this final lab of the semester, <a href="https://cei-lab.github.io/ECE4960/Lab12b.html" target="_blank">Lab 12b</a>, we will be experimenting with a Kalman Filter to control an inverted pendulum. For some explanation of the pendulum control in general, see Lab 11b. The implementation of the Kalman Filter itself is provided by course staff <a href="https://cei-lab.github.io/ECE4960/ECE4960_Lab12b.zip" target="_blank">here</a>. 
                                     </p>
-                                    <h5>Lab 12 Report</h5>
+                                    <h5>Lab 12b Report</h5>
                                     <p class="mb-5">
-                                        The point of a Kalman Filter seems to be similar to the point of using the Bayes Filter to measure the position of the robot in Lab 8. Instead of incorporating uncertainty with respect to the position and orientation of the robot, we are instead incorporating uncertainty with respect to the state vector representing the inverted pendulum system. Namely, we are incorporating uncertainty into the position and velocity of the cart, as well as the angle and angular velocity of the pendulum.
+                                        The point of a Kalman Filter is similar to the point of using the Bayes Filter to measure the position of the robot in Lab 8. Instead of incorporating uncertainty with respect to the position and orientation of the robot, we are instead incorporating uncertainty with respect to the state vector representing the inverted pendulum system. Namely, we are incorporating uncertainty into the position and velocity of the cart, as well as the angle and angular velocity of the pendulum. We are also able to estimate the entire state of the system with a limited number of directly measured values (this depends on how good the model is, and on the observability/controllability of the system).
                                     </p>
                                     <p class="mb-5">
-                                        Instead of planning a path based on the current belief of the state of the robot, however, we are using the belief to calculate the actuation applied force "u" which best represents the current state. To begin the lab, I modified the physical parameters of the robot to match my measurements from Lab 3. See Lab 11 for details.
+                                        Instead of planning a path based on the current belief of the state of the robot, however, we are using the belief to calculate the actuation applied force "u" which best represents the current state. To begin the lab, I modified the physical parameters of the robot to match my measurements from Lab 3. See Lab 11b for details.
                                     </p>
                                     <p class="mb-5">
                                         Because the Kalman Filter uses a discrete time-step, as opposed to continuous variables, the A and B matrices are changed to fit a new form.
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab12/discrete_slide10.png" alt="" />
                                             <figcaption class="figure-caption">
-                                                This slide from Lecture 18, page 10, shows the new formula to which the A and B matrices must now conform. This is in contrast to the formula they followed previously (see Lab 11).
+                                                This slide from Lecture 18, page 10, shows the new formula to which the A and B matrices must now conform. This is in contrast to the formula they followed previously (see Lab 11b).
                                             </figcaption>
                                         </figure><br>
-                                        Where the previous lab was predicting a "velocity" for each state variable based on A, B, u, and the state vector, the Kalman Filter is now trying to estimate the next state vector in time <i>itself</i>, straight from A, B, and the actuation signal u(t). Thank you to <a href="https://dmd354.github.io/ECE4960/" target="_blank">Daniel DiAngelis</a> for the advice on where to look to answer this question.
+                                        Where the previous lab was predicting the state vector's derivative based on A, B, u, and the state vector, the Kalman Filter is now trying to estimate the next state vector in time <i>itself</i>, straight from A, B, and the actuation signal u(t). Thank you to <a href="https://dmd354.github.io/ECE4960/" target="_blank">Daniel DiAngelis</a> for the advice on where to look to answer this question.
                                     </p>
                                     <p class="mb-5">
                                         Based on the C-matrix in <code>pendulumParam.py</code>, we are only measuring the angular rate (thetadot) directly, since only the last element in the vector is activated. This simulates direct observations using the gyroscope only. This means we are estimating the rest of the state variables based on only this one input.
@@ -3755,42 +3755,42 @@ Controllability:   [[  0.           2.10526316  -3.45706371   6.75485981]
 Rank(controllability): 4
                                             </code>
                                         </pre>
-                                        Because the rank(observability)<4, the system is not observable. However, the rank(controllability)=4, so the system is controllable. Because this system is simulated nearly perfectly to match the model that the filter is using, the Kalman Filter is able to get a grasp on the current state and control the pendulum well despite the lack of observability. Since the output of each element of the observability matrix corresponds depends on C and A, and since no CA<sup>n</sup> can produce a non-zero value in the first column, the first variable in the state vector cannot be observed (in this case, the position: z) (Source: <a href="https://www.ece.rutgers.edu/~gajic/psfiles/chap5traCO.pdf" target="_blank">Controllability and Observability</a>, page 7). <br><br>
-                                        Of course, this is still fine, because as we learned in Lab 11, knowing where ther cart is is not as important as knowing the angle of the pendulum, its speed, and the cart's speed. We could care less where the cart is as long as the pendulum isn't falling over.
+                                        Because the rank(observability)<4, the system is not observable. However, the rank(controllability)=4, so the system is controllable. Because this system is simulated nearly perfectly to match the model that the filter is using, the Kalman Filter is able to get a grasp on the current state and control the pendulum well despite the lack of observability. Since the output of each element of the observability matrix corresponds depends on C and A, and since no CA<sup>n-1</sup> element can produce a non-zero value in the first column, the first variable in the state vector cannot be observed (in this case, the position: z) (Source: <a href="https://www.ece.rutgers.edu/~gajic/psfiles/chap5traCO.pdf" target="_blank">Controllability and Observability</a>, page 7). <br><br>
+                                        Of course, this is still fine, because as we learned in Lab 11b, knowing where the cart is is not as important as knowing the angle of the pendulum, its speed, and the cart's speed. We don't where the cart is as long as the pendulum isn't falling over.
                                     </p>
                                     <h6>Initial State Discrepancy (and recovery)</h6>
                                     <p class="mb-5">
-                                        In order to mess with the initial state of the pendulum, I modified the initial belief, <code>mu</code>, in <code>runSimulation.py</code>one variable at a time, and then all-together. After changing one or two of the four variables one at a time, I decided to change them all at once, since rigorous data collection is not necessary (the nearly perfect system could correct for dramatic discrepancies in initial state).
+                                        In order to mess with the initial state of the pendulum, I modified the initial belief, <code>mu</code>, in <code>runSimulation.py</code>. After changing one or two of the four variables one at a time, I decided to change them all at once, since rigorous data collection is not necessary (the nearly perfect system could correct for quite large discrepancies in initial state).
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/initial_state/allp5.png" alt="" />
                                             <figcaption class="figure-caption">
-                                                With <code>mu = np.array([[P.z0+0.5], [P.zdot0+0.5], [P.theta0+0.5], [P.thetadot0+0.5]])</code>, the Kalman Filter took drastic and unrealistic action to correct for the initial error. Error on states other than the position converged to the correct state in a few seconds.
+                                                With <code>mu = np.array([[P.z0+0.5], [P.zdot0+0.5], [P.theta0+0.5], [P.thetadot0+0.5]])</code>, the Kalman Filter took drastic and unrealistic action to correct for the initial error. Error on states other than the position converged to the correct state very quickly.
                                             </figcaption>
                                         </figure><br>
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/initial_state/zp5_restp3.png" alt="" />
                                             <figcaption class="figure-caption">
-                                                With <code>mu = np.array([[P.z0+0.5], [P.zdot0+0.3], [P.theta0+0.3], [P.thetadot0+0.3]])</code>, the Kalman Filter took slightly more realistic action to correct for the initial error. Error on states other than the position converged to the correct state in a few seconds.
+                                                With <code>mu = np.array([[P.z0+0.5], [P.zdot0+0.3], [P.theta0+0.3], [P.thetadot0+0.3]])</code>, the Kalman Filter took slightly more realistic action to correct for the initial error. Error on states other than the position converged to the correct state rapidly.
                                             </figcaption>
                                         </figure><br>
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/initial_state/zp5_zdotp3_thetap1_thetadotp2.png" alt="" />
                                             <figcaption class="figure-caption">
-                                                With <code>mu = np.array([[P.z0+0.5], [P.zdot0+0.3], [P.theta0+0.1], [P.thetadot0+0.2]])</code>, the Kalman Filter took small action to correct for initial discrepancy. This looked the most realistic to me in terms of what the cart could actually handle. Error on states other than the position converged to the correct state in a few seconds.
+                                                With <code>mu = np.array([[P.z0+0.5], [P.zdot0+0.3], [P.theta0+0.1], [P.thetadot0+0.2]])</code>, the Kalman Filter took small action to correct for initial discrepancy. This looked the most realistic to me in terms of what the cart could actually handle. Error on states other than the position converged to the correct state a bit slower, but still within only a couple seconds.
                                             </figcaption>
                                         </figure><br>
-                                        It looks to me as though any of these discrepancies took about 5 seconds to correct at minimum, but of course the less added discrepancy, the better the filter could converge.
+                                        It looks to me as though any of these discrepancies took about 2-3 seconds to correct at maximum.
                                     </p>
                                     <h6>Deadband and Saturation</h6>
                                     <p class="mb-5">
-                                        Just like in Lab 11, I implemented deadband and saturation in the <code>pendulumParam.py</code> file for easy access:
+                                        Just like in Lab 11b, I implemented deadband and saturation in the <code>pendulumParam.py</code> file for easy access:
                                         <pre>
                                             <code>
 deadband = (80/255)*m2*3.33 #this value ends up at 0.59N  #.5627kg*3.33m/s/s = F = ma
 saturate = m2*3.33 #this ends up at about 1.87N
                                             </code>
                                         </pre><br>
-                                        The values are calculated based on a straightforward use of the max acceleration measured during Lab 3. Please see Lab 11 for details. I chose my more optimistic forward-motion-with-both-wheels minimum-driving-signal of 80/255 for my deadband in this lab. Because of the changes to the code that allow the desired theta to be zero (thanks :D), I am less worried that this part of the code will crash the simulator.
+                                        The values are calculated based on a straightforward use of the max acceleration measured during Lab 3. Please see Lab 11b for details. I chose my more optimistic forward-motion-with-both-wheels minimum-driving-signal of 80/255 for my deadband in this lab. Because of the changes to the code that allow the desired angle to be zero instead of pi (thanks :D), I was not worried that this part of the code will crash the simulator.
                                     </p>
                                     <p class="mb-5">
                                         Inside <code>runSimulation.py</code>, under line 55, I can now append the following to clamp the actuation force to my deadband and saturation range.
@@ -3839,16 +3839,16 @@ dydt = [ydot0 + np.random.randn()*0.01, ydot1 + np.random.randn()*0.01, ydot2 + 
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/noise/proc_noise_p1.png" alt="" />
                                             <figcaption class="figure-caption">
-                                                With process noise on all states, the simulator is still able to stabilize and estimate the observable states well. Since the state estimate starts to show signs of noise, I knew I had done the right thing.
+                                                With higher process noise, the simulator is still able to stabilize and estimate the observable states well. The state estimate starts to show visible signs of noise.
                                             </figcaption>
                                         </figure><br>
-                                        This setup still estimated the state well, since the Kalman Filter is expecting noise of this size already. The value of the process noise was then restored to the default value to continue adding more nonlinearity. To apply measurement noise, I applied a similar logic to the noise parameters that I calculated in Lab 11. Since we are only directly measuring thetadot, I only need to add noise to that one parameter while taking a measurement in the main simulator loop. Shout out to Katie Bradford and Daniel DiAngelis for pointing me in the right direction on this noise addition:
+                                        This setup still estimated well, since the Kalman Filter is expecting noise of this size already. The value of the process noise was then restored to the default value to continue adding more nonlinearity. To apply measurement noise, I applied a similar logic to the noise parameters that I calculated in Lab 11b. Since we are only directly measuring thetadot, I only need to add noise to that one parameter while taking a measurement in the main simulator loop. Shout out to <a href="https://dmd354.github.io/ECE4960/" target="_blank">Daniel DiAngelis</a> and <a href="https://kebradford.github.io/ECE4960/" target="_blank">Katie Bradford</a> for pointing me in the right direction on this noise addition:
                                         <pre>
                                             <code>
 y_kf = P.C.dot(old_state) + np.random.randn()*0.03
                                             </code>
                                         </pre>
-                                        In Lab 11, I estimated the error in thetadot to be about .03 rad/s, but I also tried a couple different values to confirm behavior:
+                                        In Lab 11b, I estimated the error in thetadot to be about .03 rad/s, but I also tried a couple different values to confirm behavior:
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/noise/both_noise_008.png" alt="" />
                                             <figcaption class="figure-caption">
@@ -3878,7 +3878,7 @@ y_kf = P.C.dot(old_state) + np.random.randn()*0.03
                                     </p>
                                     <h6>Messing with A and B</h6>
                                     <p class="mb-5">
-                                        To "mess" with the model thorugh the A and B matrices, I modified their values before being used in the Kalman Filter function. This way the simulator still uses A and B to evolve the system, but the Kalman Filter is actuating based on a faulty set of parameters. The matrices at the top of the <code>kalmanFilter.py</code> definition use the actual A and B model to generate discretized matrices.
+                                        To "mess" with the model through the A and B matrices, I modified their values before being used in the Kalman Filter function. This way the simulator still uses A and B to evolve the system, but the Kalman Filter is actuating based on a faulty set of parameters. The matrices at the top of the <code>kalmanFilter.py</code> definition use the actual A and B model to generate discretized matrices.
                                         <pre>
                                             <code>
 Ad = scipy.linalg.expm(P.A*P.T_update)*1.0003
@@ -3901,7 +3901,7 @@ Bd = P.B*P.T_update*1.0003
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/bad_model/A0003_B0003.png" alt="" />
                                             <figcaption class="figure-caption">
-                                                Changing the A and B matrices by 0.03% was the most that I could manage before instability set in. Actual performance at maintaining stability with this model inaccuracy is poor.
+                                                Changing the A and B matrices by 0.03% was the most that I could manage before instability set in. Ability to move between setpoints with this model inaccuracy is low.
                                             </figcaption>
                                         </figure><br>
                                         I found that above about 0.03% error applied to both the A and B matrices, the Kalman Filter begins to fail to estimate the state of my system well. I restored the error to 0.01% before moving on to incorporating the lower update time.
@@ -3923,7 +3923,7 @@ Bd = P.B*P.T_update*1.0003
                                         <figure class="figure">
                                             <img class="img-fluid rounded" src="assets/img/photos/lab12/plots/t_update/t05.png" alt="" />
                                             <figcaption class="figure-caption">
-                                                Increasing the update time to 0.05s causes a lot of wobbling, but manages to keep the pendulum upright.
+                                                Increasing the update time to 0.05s causes a lot of wobbling, but the Kalman Filter manages to keep the pendulum upright.
                                             </figcaption>
                                         </figure><br>
                                         <figure class="figure">
@@ -3932,7 +3932,7 @@ Bd = P.B*P.T_update*1.0003
                                                 Increasing the update time to 0.06s, the pendulum could remain upright once I decreased the measurement noise a bit.
                                             </figcaption>
                                         </figure><br>
-                                        I found that with my realistic measurement noise values, I could only increase the update time to about 0.05s without instability setting in. However, by lowering my measurement noise a bit (to 0.01 instead of 0.03), I was able to increased the update time to only once every 0.06s.
+                                        I found that with my realistic measurement noise values, I could only increase the update time to about 0.05s without instability setting in. However, by lowering my measurement noise a bit (to 0.01 instead of 0.03), I was able to increase the update time to only once every 0.06s.
                                     </p>
                                     <h6>Final Nonlinearities</h6>
                                     <p class="mb-5">
@@ -3950,6 +3950,9 @@ Bd = P.B*P.T_update*1.0003
                                         Based on all of these nonlinearities, and how well the Kalman Filter was able to handle them, my instinct is to be optimistic that my robot would be able to balance the pendulum. However, there are a number of nonlinearities that we did not account for in this model at all. Rotation on a 2D plane, outside of this one-dimensional constraint, has not been taken into account. Differential friction in the wheels has not been controlled for. Not to mention the greatest nonlinearity of all: my ability to debug errors in implementation (perhaps the greatest obstacle). 
                                     </p>
                                     <p class="mb-5">
+                                        I also think that only using a 1% error on the model inaccuracy is extremely optimistic. The chance that we have assumed too much about the behavior of our real robot is very high, in my opinion.
+                                    </p>
+                                    <p class="mb-5">
                                         My final answer is no, the robot would not be able to balance the pendulum. Perhaps I do not understand the Kalman Filter well-enough, but I am skeptical that it can handle all of the strange behaviors of our robots. It still might be worth a try!
                                     </p>
                                     <h6>Closing Statement</h6>
@@ -3957,8 +3960,7 @@ Bd = P.B*P.T_update*1.0003
                                         This course has taught me a lot and I am very proud to have produced this website as a result. Thank you to the entire course staff and Asst. Prof. Petersen for running such an interesting course in such a weird semester (Fall 2020).<br>
                                         <br>
                                         For this particular lab I'd like to thank <a href="https://dmd354.github.io/ECE4960/" target="_blank">Daniel DiAngelis</a> and <a href="https://kebradford.github.io/ECE4960/" target="_blank">Katie Bradford</a> for their help keeping me un-stuck and making progress on this lab through their conversations on Campuswire.<br><br>
-                                        I'd also like to thank my classmates in Fast Robots in general for the help along the way with both class content and morale. It's tough not seeing everyone's faces around campus but at least we got to chat about Fast Robots every once in a while. :)<br><br>
-                                        -Greg Kaiser
+                                        I'd also like to thank my classmates in Fast Robots in general for the help along the way with both class content and morale. It's tough not seeing everyone's faces around campus but at least we got to chat about Fast Robots every once in a while. :)
                                     </p>
                                     <!-- <h6>Extra Credit (Optional)</h6> -->
                                     <h5>Lab 12b Video</h5>
