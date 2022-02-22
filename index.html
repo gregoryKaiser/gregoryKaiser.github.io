@@ -72,9 +72,19 @@
                             <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
                             </div>
-                            <img class="img-fluid" src="assets/img/portfolio/game.png" alt="" />
+                            <img class="img-fluid" src="assets/img/photos/fast_robots/three_quart.jpg" alt="" />
                         </div>
                         <h5 class="text-center">Fast Robots - ECE 4960</h5>
+                    </div>
+                    <!-- Portfolio Item 2-->
+                    <div class="col-md-6 col-lg-4 mb-5">
+                        <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal2">
+                            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+                                <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
+                            </div>
+                            <img class="img-fluid" src="assets/img/photos/emb_os/labeled_gamescreen.png" alt="" />
+                        </div>
+                        <h5 class="text-center">Its Dangerous to Go Alone - ECE 5725</h5>
                     </div>                    
                 </div>
             </div>
@@ -222,16 +232,17 @@
                                         <div class="divider-custom-line"></div>
                                     </div>
                                     <!-- Portfolio Modal - Image-->
-                                    <!-- <img class="img-fluid rounded mb-5" src="assets/img/photos/" alt="" /> -->
+                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/fast_robots/three_quart.jpg" alt="" />
                                     <!-- Portfolio Modal - Text-->
                                     <h5>Final Project</h5>
                                     <p>
-                                        The end result from Fast Robots was a grid localizing and path planning robot which could determine its position
+                                        In this class, I created a grid localizing and path planning robot which could determine its position
                                         on a map, and plan a route to an end goal, using a variety of on-board sensors and off-board computer calculations. 
                                         After detecting wall distances around the vehicle using a time-of-flight sensor during a 360-degree rotation, the robot uses bluetooth communication
                                         to transmit that data to a laptop. That laptop uses a Bayes filter to probabilistically determine the vehicle's position and 
                                         orientation on a known map.
                                     </p>
+
                                     <p>
                                         Because this was a lab course, more complete documentation is available on a separate site where each stage of the build process
                                         was recorded for grading purposes. Please visit the <a href="https://gregorykaiser.github.io/hotwheelsofinquiry" target="_blank"> Hot Wheels of Inquiry</a>
@@ -239,9 +250,61 @@
                                     </p>
                                     <h5>Class Description</h5>
                                     <p>
-                                        Fast Robots was a new course designed to teach us robotics principles which went beyond quasi-static deterministic motion like 
-                                        we'd seen in previous courses. It also served as an introduction to aspects of control theory relevant to the field. 
+                                        Fast Robots was a course designed to teach us principles of robotic mobility. It went beyond previous courses which centered on slower servo-based
+                                        wheeled robots. It also served as an introduction to aspects of control theory relevant to the field. 
 
+                                    </p>
+
+                                    <button class="btn btn-primary" data-dismiss="modal">
+                                        <i class="fas fa-times fa-fw"></i>
+                                        Close Window
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Portfolio Modal 2-->
+        <div class="portfolio-modal modal fade" id="portfolioModal2" tabindex="-1" role="dialog" aria-labelledby="portfolioModal2Label" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"><i class="fas fa-times"></i></span>
+                    </button>
+                    <div class="modal-body text-left">
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-lg-8">
+                                    <!-- Portfolio Modal - Title-->
+                                    <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal2Label">Its Dangerous to Go Alone - ECE 5725</h2>
+                                    <!-- Icon Divider-->
+                                    <div class="divider-custom">
+                                        <div class="divider-custom-line"></div>
+                                        <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                                        <div class="divider-custom-line"></div>
+                                    </div>
+                                    <!-- Portfolio Modal - Image-->
+                                    <img class="img-fluid rounded mb-5" src="assets/img/photos/emb_os/labeled_gamescreen.png" alt="" />
+                                    <!-- Portfolio Modal - Text-->
+                                    <h5>Final Project</h5>
+                                    <p>
+                                       My partner Caeli and I wanted to make use of a camera for our final project, so we taped one to the back of a Raspberry Pi
+                                       and made a video game which could recognize objects using TensorFlow-Lite. We also wrote the physics and logic for the game ourselves after 
+                                       starting from a scaffold. 
+                                    </p>
+                                    <p>
+                                        We were able to implement some basic game functions before the class ended, including environmental health effects,
+                                       equipping a weapon, and consuming a food item to regain health. In order to gain these items, you must switch to the live camera feed and place
+                                       a valid object in view. A couple fruit options will spawn an apple on screen, various clothing items will spawn armor, and a pair of scissors or a 
+                                       knife will spawn your character a sword form the side of the screen.
+                                    </p>
+                                    <h5>Class Description</h5>
+                                    <p>
+                                        ECE 5725: Embedded Operating Systems is a class dedicated to using the Raspberry Pi as a development platform for a 
+                                        variety of projects. We were taught about the distinctions between single threaded microcontrollers multi-core computers 
+                                        like the one on the RPi and how to take advantage of them.  
                                     </p>
 
                                     <button class="btn btn-primary" data-dismiss="modal">
