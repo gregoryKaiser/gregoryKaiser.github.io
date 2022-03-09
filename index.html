@@ -7,7 +7,9 @@
         <meta name="author" content="" />
         <title>Gregory Kaiser</title>
         <!-- Favicon-->
-        <link rel="icon" type="image/x-icon" href="assets/img/cog.ico" />
+        <!-- Source: https://cdn.dribbble.com/users/889614/screenshots/2502638/media/082d439fdd3554534ecd0e6e7fe16d83.png?compress=1&resize=800x600&vertical=top
+        (custom favicon generated from that source image) -->
+        <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
         <!--source for cog icon: https://www.iconarchive.com/show/small-n-flat-icons-by-paomedia/cogs-icon.html-->
         <!-- source for terminator icon: https://images-na.ssl-images-amazon.com/images/I/7124A8OOL6L._AC_SL1001_.jpg -->
         <!-- Font Awesome icons (free version)-->
@@ -74,7 +76,7 @@
                             </div>
                             <img class="img-fluid" src="assets/img/photos/fast_robots/three_quart.jpg" alt="" />
                         </div>
-                        <h5 class="text-center">Fast Robots - ECE 4960</h5>
+                        <h5 class="text-center"><i>Hot Wheels of Inquiry</i><br>ECE 4960<br>Fall 2020</h5>
                     </div>
                     <!-- Portfolio Item 2-->
                     <div class="col-md-6 col-lg-4 mb-5">
@@ -84,7 +86,7 @@
                             </div>
                             <img class="img-fluid" src="assets/img/photos/emb_os/labeled_gamescreen.png" alt="" />
                         </div>
-                        <h5 class="text-center">Its Dangerous to Go Alone - ECE 5725</h5>
+                        <h5 class="text-center"><i>It's Dangerous to Go Alone</i><br>ECE 5725<br>Fall 2020</h5>
                     </div>    
                     <!-- Portfolio Item 3-->
                     <div class="col-md-6 col-lg-4 mb-5">
@@ -94,7 +96,7 @@
                             </div>
                             <img class="img-fluid" src="assets/img/photos/emb_sys/board_axes.png" alt="" />
                         </div>
-                        <h5 class="text-center">Flip It! - ECE 3140</h5>
+                        <h5 class="text-center"><i>Flip It!</i><br>ECE 3140<br>Spring 2020</h5>
                     </div>
                     <!-- Portfolio Item 4-->
                     <div class="col-md-6 col-lg-4 mb-5">
@@ -104,7 +106,7 @@
                             </div>
                             <img class="img-fluid" src="assets/img/photos/microcontrollers/ball_balance.jpeg" alt="" />
                         </div>
-                        <h5 class="text-center">Ball Balancer - ECE 4760</h5>
+                        <h5 class="text-center"><i>Ball Balancer</i><br>ECE 4760<br>Fall 2019</h5>
                     </div>                    
                 </div>
             </div>
@@ -254,7 +256,7 @@
                                     <!-- Portfolio Modal - Image-->
                                     <img class="img-fluid rounded mb-5" src="assets/img/photos/fast_robots/three_quart.jpg" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <h5>Final Project</h5>
+                                    <h5>Final Project - Fall 2020</h5>
                                     <p>
                                         In this class, I created a grid localizing and path planning robot which could determine its position
                                         on a map, and plan a route to an end goal, using a variety of on-board sensors and off-board computer calculations. 
@@ -308,7 +310,7 @@
                                     <!-- Portfolio Modal - Image-->
                                     <img class="img-fluid rounded mb-5" src="assets/img/photos/emb_os/labeled_gamescreen.png" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <h5>Final Project</h5>
+                                    <h5>Final Project - Fall 2020</h5>
                                     <p>
                                        My partner Caeli and I wanted to make use of a camera for our final project, so we taped one to the back of a Raspberry Pi
                                        and made a video game which could recognize objects using TensorFlow-Lite. We also wrote the physics and logic for the game ourselves after 
@@ -360,16 +362,29 @@
                                     <!-- Portfolio Modal - Image-->
                                     <img class="img-fluid rounded mb-5" src="assets/img/photos/emb_sys/board_axes.png" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <h5>Final Project</h5>
+                                    <h5>Final Project - Spring 2020</h5>
                                     <p>
-                                       
-                                    </p>
+                                       My project partner Alex and I were forced to complete this final project remotely due to the onset of the COVID-19 
+                                       pandemic. We decided early on to keep hardware to a minimum to make remote collaboration smoother. The class was taught using a 
+                                       board that already had an inertial measurement unit and an LED, so we chose to combine those into a game that requires a 
+                                       player to flip the microcontroller in mid air and catch it again. We detected these flips and award points at the end of a round.
+                                    </p>                                    
                                     <p>
-                                       
+                                        "Flip It!" turned out to be a pretty difficult game to play, but I like that we made something interesting from so little at our disposal.
+                                        The player first aligns the microcontroller with Earth's magnetic field so that the flips can be detected accurately in each axis. The board
+                                        blinks a series of lights to indicate which types of flips the player must perform. Only two axis are allowed, since only two rotations are stable
+                                        for a rectangular prism like the device we taped together. A freefall detection is triggered when the board is in the air, and a full rotation 
+                                        around the correct axis must fully complete before the board comes out of freefall and is caught. 
                                     </p>
+                                    <!-- <p>
+                                        For more details, see the report we produced and 
+                                        final demo video as well.
+                                    </p> -->
                                     <h5>Class Description</h5>
                                     <p>
-                                        
+                                        ECE 3140 - Embedded Systems is an introductory course that connects the hardware of a processor to the physical world.
+                                        It discusses assembly language considerations, real-time constraints, concurrency management, process scheduling, interrupts, 
+                                        and I/O, among other factors required for successful embedded programming and design. 
                                     </p>
 
                                     <button class="btn btn-primary" data-dismiss="modal">
@@ -405,16 +420,25 @@
                                     <!-- Portfolio Modal - Image-->
                                     <img class="img-fluid rounded mb-5" src="assets/img/photos/microcontrollers/ball_balance.jpeg" alt="" />
                                     <!-- Portfolio Modal - Text-->
-                                    <h5>Final Project</h5>
+                                    <h5>Final Project - Fall 2019</h5>
                                     <p>
-                                       
+                                       My project partner Sam and I created a ball balancing platform using PD control across two axes of a resistive touch screen. The ball is made of steel 
+                                       so that the touchscreen would register its position, and also to slow down its dynamics so that we could control it properly.
+                                       Two servos controlled the angle of the plate, which was fixed at its center, but allowed to pivot about that point. The PIC32 microcontroller was used to
+                                       drive the touchscreen for feedback as well as to control the servos.
                                     </p>
                                     <p>
-                                       
+                                       In the end, we were able to keep the steel ball on the platform for about a minute at a time using PD control. Because the position wasn't stable at a single
+                                       point, we never bothered to incorporate integral control to correct for steady state offsets.
                                     </p>
+                                    <!-- <p>
+                                        A more in-depth report was generated for the class, which you can read here. We also wrote a similar article describing the project for Circuit Cellar.
+                                        Hackaday also covered the project separately on their website.
+                                    </p> -->
                                     <h5>Class Description</h5>
                                     <p>
-                                        
+                                        ECE 4760 - Designing with Microcontrollers is a class devoted to "...microcontrollers as components in electronic design and embedded control." 
+                                        Using the PIC32MX processor as a basis for all lab work, an understanding of real-time constraints is required to execute the digital systems design tasks.
                                     </p>
 
                                     <button class="btn btn-primary" data-dismiss="modal">

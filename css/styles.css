@@ -24,7 +24,7 @@
   --white: #fff;
   --gray: #6c757d;
   --gray-dark: #343a40;
-  --primary: #1abc9c; /*#1abc9c*/
+  --primary: #1abc9c;
   --secondary: #2c3e50;
   --success: #28a745;
   --info: #17a2b8;
@@ -6095,7 +6095,7 @@ a.close.disabled {
 }
 
 .bg-primary {
-  background-color: #526785 !important; /*#1abc9c*/
+  background-color: #1abc9c !important;
 }
 
 a.bg-primary:hover, a.bg-primary:focus,
@@ -9999,8 +9999,7 @@ h3 {
   }
 }
 .page-section {
-  /* padding: 6rem 0; */
-  padding: 3rem 0;
+  padding: 6rem 0;
 }
 .page-section .page-section-heading {
   font-size: 2.25rem;
@@ -10135,8 +10134,6 @@ h3 {
 .masthead {
   padding-top: calc(6rem + 74px);
   padding-bottom: 6rem;
-  /* padding-top: calc(3rem + 74px);
-  padding-bottom: 5rem; */
 }
 .masthead .masthead-heading {
   font-size: 2.75rem;
@@ -10151,10 +10148,8 @@ h3 {
 
 @media (min-width: 992px) {
   .masthead {
-    /* padding-top: calc(6rem + 104px);
-    padding-bottom: 6rem; */
-    padding-top: calc(3rem + 104px);
-    padding-bottom: 5rem;
+    padding-top: calc(6rem + 104px);
+    padding-bottom: 6rem;
   }
   .masthead .masthead-heading {
     font-size: 4rem;
